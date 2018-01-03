@@ -4,7 +4,7 @@
 The purpose of this post is to explain what configure await does in the web context and when to use it.
 
 __Syntax__
-```Csharp
+```cs
 public ConfiguredTaskAwaitable ConfigureAwait(
 	bool continueOnCapturedContext
 )
@@ -23,7 +23,7 @@ When the task resumes, it first enters the captured context before executing the
 The parameter name continueOnCapturedContext hints at what it does. With configure await false, when an incomplete task is awaited the current context is not captured and is not available on when the executing the method. 
 
 The following API controller shows where context is dropped.
-```CSharp
+```cs
  // GET api/values
 public async Task<IEnumerable<string>> Get()
 {
@@ -51,7 +51,7 @@ public async Task DoSomethingAsync()
 The right time to use ConfigureAwait is when you know that you are not going to need the context and never in top level methods such as Controllers. 
 
 This code shows when it maybe Ok to use configure await. 
-```CSharp
+```cs
 // GET api/values
 public async Task<IEnumerable<string>> Get()
 {
