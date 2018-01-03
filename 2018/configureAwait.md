@@ -1,5 +1,5 @@
 # Using Configure Await in ASP.NET 
-January 2018
+<sub>January 2018<sub>
 
 The purpose of this post is to explain what configure await does in the web context and when to use it.
 
@@ -8,7 +8,7 @@ __Syntax__
 public ConfiguredTaskAwaitable ConfigureAwait(
 	bool continueOnCapturedContext
 )
-__Parameters__
+Parameter :
 continueOnCapturedContext
    true to attempt to marshal the continuation back to the original context captured; otherwise, false.
 ```
@@ -18,7 +18,6 @@ continueOnCapturedContext
 By default, when an incomplete Task is awaited, the Synchronization Context is captured. The type of context is dependent on technology you are working with. For this blog post we will be focusing on AspNetSynchronizationContext in ASP.NET.
 
 When the task resumes, it first enters the captured context before executing the remainder of the code. In fact, AspNetSynchronizationContext guarantees your continuations will get the same HttpContext.Current even if your task continues on a different thread. 
-
  
 ## What does Configure Await do?
 The parameter name continueOnCapturedContext hints at what it does. With configure await false, when an incomplete task is awaited the current context is not captured and is not available on when the executing the method. 
@@ -49,7 +48,6 @@ public async Task DoSomethingAsync()
     await Task.Delay(1000);
 }
 ```
- 
 The right time to use ConfigureAwait is when you know that you are not going to need the context and never in top level methods such as Controllers. 
 
 This code shows when it maybe Ok to use configure await. 
