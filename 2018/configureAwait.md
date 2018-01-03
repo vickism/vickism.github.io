@@ -1,15 +1,18 @@
 # Using Configure Await in ASP.NET 
 January 2018
+
+The purpose of this post is to explain what configure await does in the web context and when to use it.
+
 __Syntax__
-``` 
+```Csharp
 public ConfiguredTaskAwaitable ConfigureAwait(
 	bool continueOnCapturedContext
 )
-Parameters
+__Parameters__
 continueOnCapturedContext
    true to attempt to marshal the continuation back to the original context captured; otherwise, false.
 ```
-The purpose of this document is to explain what configure await does in the web context and when to use it.   
+
 
 ## Context 
 By default, when an incomplete Task is awaited, the Synchronization Context is captured. The type of context is dependent on technology you are working with. For this blog post we will be focusing on AspNetSynchronizationContext in ASP.NET.
@@ -88,13 +91,10 @@ If you have a core library that’s potentially shared with desktop applications
 Using ConfigureAwait(false) to avoid deadlocks is a dangerous practice. You would have to use ConfigureAwait(false) for every await in the transitive closure of all methods called by the blocking code, including all third- and second-party code. Using ConfigureAwait(false) to avoid deadlock is at best just a hack. 
 
 ## Further Reading/Resources
-[Async/Await - Best Practices in Asynchronous Programming - By Stephen Cleary | March 2013](https://msdn.microsoft.com/en-us/magazine/jj991977.aspx)
+[Async/Await - Best Practices in Asynchronous Programming - By Stephen Cleary \| March 2013](https://msdn.microsoft.com/en-us/magazine/jj991977.aspx)
 
-[Parallel Programming with .NET by Stephen Toub | June 15, 2012 ](https://blogs.msdn.microsoft.com/pfxteam/2012/06/15/executioncontext-vs-synchronizationcontext/)
+[Parallel Programming with .NET By Stephen Toub \| June 2012](https://blogs.msdn.microsoft.com/pfxteam/2012/06/15/executioncontext-vs-synchronizationcontext)
 
-[Parallel Computing - It's All About the SynchronizationContext By Stephen Cleary | February 2011](https://msdn.microsoft.com/en-us/magazine/gg598924.aspx)
+[Parallel Computing - It's All About the SynchronizationContext By Stephen Cleary \| February 2011](https://msdn.microsoft.com/en-us/magazine/gg598924.aspx)
 
 [Best practice to call ConfigureAwait for all server-side code](https://stackoverflow.com/questions/13489065/best-practice-to-call-configureawait-for-all-server-side-code)
-
-
-
