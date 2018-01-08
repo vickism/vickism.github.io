@@ -26,7 +26,7 @@ Or, the Docker installer should do it for you.
 
 ## Fixing Insufficient memory issues
 
-The Docker installer will create a Virtual machine (Moby) in your development virtual machine(Child7). If Child7 is set to use Dynamic Memory then chances are Moby will throw an insufficient memory error. 
+The Docker installer will create a Virtual machine (MobyLinuxVM) in your development virtual machine (Child7). If Child7 is set to use Dynamic Memory then chances are Moby will throw an insufficient memory error along the lines of Not enough memory to start docker. 
 
 Depending on how much RAM Mother has, you could increase the Startup RAM for Child7 or reduce the Startup RAM for Moby or both. These settings changes can be done via the Hyper-V manager.
 
