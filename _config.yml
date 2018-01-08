@@ -2,3 +2,7 @@ theme: jekyll-theme-cayman
 title: [Vickism]
 description: [A developer's blog]
 google_analytics: [UA-111876847-1]
+plugins:
+  - jekyll-seo-tag
+twitter:
+  username: vf0rvick
