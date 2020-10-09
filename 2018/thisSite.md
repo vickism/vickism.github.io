@@ -1,13 +1,16 @@
-# Otherwise
-
 <style>
 .foo-bar {
-  color: pink;
+  font-size: 70px;
+  margin: auto;
+  width: 50%;
+  padding: 10px;
 }
 .page-header {
   display: none;
 }
+.site-footer {
+  display: none;
+}
 </style>
 
-<h1>Otherwise</h1>
 <div class="foo-bar">Otherwise</div>
