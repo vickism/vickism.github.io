@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0D0D0D" />
+<title>Workout — May 2026</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0D0D0D; }
+  body { font-family: Georgia, serif; -webkit-font-smoothing: antialiased; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+
+const EX = {
+  "Pendulum Swings": {
+    howTo: "Lean forward with your good hand on a bench or table. Let the injured arm hang completely loose — gravity does the work, not the shoulder. Draw small circles (clockwise then anti-clockwise), then gently swing forward/back and side-to-side.",
+    feel: "Zero effort in the shoulder. The arm should feel heavy and relaxed. You are using momentum, not muscle.",
+    moves: "The arm swings freely from the shoulder joint. Your torso stays completely still.",
+    mistakes: ["Using shoulder muscles to swing instead of gravity", "Making circles too big too soon — start tiny", "Standing upright. You MUST lean forward to decompress the joint"]
+  },
+  "Side-Lying External Rotation": {
+    howTo: "Lie on your LEFT side (injured arm faces up). Right elbow bent to 90°, upper arm pinned firmly against your ribcage. Slowly rotate the forearm upward toward the ceiling, then lower under control. Use 1–2 kg only.",
+    feel: "The back of the shoulder working — infraspinatus and teres minor. A gentle burn after 10+ reps. NOT pain at the front of the shoulder.",
+    moves: "Only the forearm rotates. The upper arm stays pinned to the body. The wrist stays neutral.",
+    mistakes: ["Letting the elbow drift away from the body — this changes the exercise entirely", "Too much weight — 1–2 kg max, this is rehab not training", "Rushing the lowering phase — the slow eccentric is where the adaptation happens"]
+  },
+  "Band Pull-Apart": {
+    howTo: "Hold a band at shoulder width, arms straight out in front at chest height. Pull the band apart by squeezing your shoulder blades together until arms reach your sides. Return slowly.",
+    feel: "A mid-back squeeze between the shoulder blades. Rear delts working. NOT the neck or upper traps.",
+    moves: "Shoulder blades retract and depress. Arms pull back in a horizontal arc.",
+    mistakes: ["Shrugging the shoulders up toward the ears", "Bending the elbows — keep them soft but straight", "Letting the band snap back — control the return, don't release it"]
+  },
+  "Supine Anterior Deltoid Raise": {
+    howTo: "Lie on your back, knees bent. Hold a very light DB (0.5–1 kg) in the right hand. Slowly raise the arm forward to 90° in the scapular plane — slightly in front of the body, not straight sideways. Lower under full control. The opposite hand can assist if needed.",
+    feel: "The front of the shoulder doing small, deliberate work. NOT pain. The scapula stays flat on the floor throughout.",
+    moves: "The arm raises forward-diagonally to 90°. Nothing else moves.",
+    mistakes: ["Too much weight — start with 0.5 kg", "Letting the arm go past 90° or drift overhead", "Arching the lower back as the arm rises — press the back flat"]
+  },
+  "Cross-Body Stretch": {
+    howTo: "With your left hand, gently pull the right arm horizontally across your chest. Hold and breathe. Don't force it.",
+    feel: "A gentle pull in the back of the right shoulder (posterior capsule). NOT a pinch at the front of the shoulder.",
+    moves: "Nothing — this is a static hold. Keep the torso facing forward throughout.",
+    mistakes: ["Pulling too aggressively on an irritated shoulder", "Rotating the torso to gain more range — stay square", "Raising the arm above shoulder height — stay horizontal to avoid impingement"]
+  },
+  "Pelvic Tilt": {
+    howTo: "Lie on your back, knees bent, feet flat. Gently flatten your lower back into the floor by tilting the pelvis — as if pulling your belly button toward your spine. Hold 3 seconds, then release. The hips stay on the floor — this is not a bridge.",
+    feel: "Deep abdominals activating. Lower back pressing into the floor. Glutes barely engage.",
+    moves: "The pelvis rotates slightly posteriorly. The lumbar curve flattens. The hips do NOT rise.",
+    mistakes: ["Holding the breath", "Over-squeezing the glutes — the work is in the deep abs, not the bum", "Lifting the hips off the floor — that is a bridge, not a pelvic tilt"]
+  },
+  "Cat-Cow": {
+    howTo: "On hands and knees, wrists under shoulders, knees under hips. Cat: exhale and round the spine upward, tucking chin to chest and tailbone under. Cow: inhale and let the spine drop, lifting the head and tailbone gently. The breath drives the movement.",
+    feel: "A gentle mobilising wave through the entire spine. Decompression in the lower back on the Cat phase.",
+    moves: "The whole spine waves from neck to tailbone. Inhale for Cow, exhale for Cat.",
+    mistakes: ["Moving only the neck or only the lower back — the whole spine should undulate", "Forcing the range of motion — this is gentle mobilisation", "Holding the breath — the inhale and exhale drive the movement"]
+  },
+  "Glute Bridge": {
+    howTo: "Lie on your back, knees bent, feet flat and hip-width apart about a foot from your glutes. Drive through your heels, squeeze the glutes, and lift the hips until your body forms a straight line from knees to shoulders. Hold 2 seconds at the top, then lower slowly.",
+    feel: "Glutes working hard at the top. Hamstrings assisting. The lower back should NOT be doing the work — if it hurts, your hips are going too high.",
+    moves: "Hips drive upward. Spine stays neutral at the top — do not hyperextend. Ribs stay down.",
+    mistakes: ["Pushing through the toes instead of the heels", "Hyperextending the lower back at the top — ribs stay DOWN", "Not squeezing the glutes at the top", "Feet placed too far from the body"]
+  },
+  "Single-Leg Glute Bridge": {
+    howTo: "Same setup as the glute bridge, but extend one leg at 45°. Drive through the planted heel and lift the hips. Keep the pelvis completely level — the unsupported side must not drop.",
+    feel: "The planted glute working harder. Hip stabilisers firing on both sides to keep the pelvis square.",
+    moves: "Hips lift straight up. The extended leg stays in line with the torso.",
+    mistakes: ["Letting the unsupported hip drop — this is the entire challenge", "Rotating the torso", "Planting the foot too far from the body (shifts load to hamstring, away from glute)"]
+  },
+  "Clamshell": {
+    howTo: "Lie on your side, hips stacked, knees bent to about 45°. Keep your feet together. Rotate the top knee open toward the ceiling as far as you can WITHOUT rolling the pelvis backward. Lower with control.",
+    feel: "The outer glute (gluteus medius) burning. The hip rotating outward. The pelvis stays absolutely still.",
+    moves: "The top hip rotates. The pelvis does not move — this is the entire point of the exercise.",
+    mistakes: ["Rolling the pelvis backward to get more range — this removes all the glute work", "Rushing — do it slowly and deliberately", "Feet drifting apart — keep them together throughout"]
+  },
+  "Fire Hydrant": {
+    howTo: "On hands and knees, wrists under shoulders, knees under hips. Keeping the knee bent to 90°, lift the right knee out to the side until the thigh is parallel to the floor. Lower under control.",
+    feel: "Outer glute and hip abductors working. Core bracing hard to stop the torso rotating.",
+    moves: "The thigh abducts outward. Hips stay square to the floor. Spine stays neutral.",
+    mistakes: ["Rotating the torso or shifting body weight to the opposite side to compensate", "Letting the spine arch downward", "Moving too fast — momentum takes over from the muscle"]
+  },
+  "Donkey Kick": {
+    howTo: "On hands and knees, wrists under shoulders, knees under hips. Keeping the knee bent to 90°, drive the heel straight up toward the ceiling by contracting the glute. Pause at the top, lower under control.",
+    feel: "Glute max contracting strongly at the top. Core bracing to keep the spine completely still.",
+    moves: "The femur extends at the hip. The spine stays neutral throughout — it must not arch.",
+    mistakes: ["Arching the lower back to get the leg higher — the most critical mistake. This means the glute has stopped working and the lumbar spine is compensating. If your back arches, lower the range", "Letting the knee angle change at the top", "Rotating the hips to gain more range"]
+  },
+  "Side Plank": {
+    howTo: "Lie on your LEFT side. Prop up on your left forearm, elbow directly under the shoulder. Stack your feet or stagger them for more stability. Lift your hips off the floor until your body forms a straight line from head to feet. Hold. Right side only when cleared by your surgeon.",
+    feel: "The left oblique and hip abductor working hard. Glutes engaged. A single straight line from head to heel.",
+    moves: "Nothing — this is a static isometric hold. Resist any sagging or rotating at the hips.",
+    mistakes: ["Letting the hips sag — defeats the entire purpose", "Neck collapsing downward — keep it neutral", "Propping on the HAND instead of the forearm — do NOT do this, it loads the shoulder. Forearm only"]
+  },
+  "Side Plank (left side)": {
+    howTo: "Lie on your LEFT side. Prop up on your left forearm, elbow directly under the shoulder. Stack your feet or stagger them for more stability. Lift your hips off the floor until your body forms a straight line from head to feet. Hold. Right side only when cleared by your surgeon.",
+    feel: "The left oblique and hip abductor working hard. Glutes engaged. A single straight line from head to heel.",
+    moves: "Nothing — this is a static isometric hold. Resist any sagging or rotating at the hips.",
+    mistakes: ["Letting the hips sag — defeats the entire purpose", "Neck collapsing downward — keep it neutral", "Propping on the HAND instead of the forearm — do NOT do this, it loads the shoulder. Forearm only"]
+  },
+  "Hip Abduction (standing cable)": {
+    howTo: "Attach an ankle cuff to the low cable. Stand side-on to the machine, holding lightly for balance only. Lift the outer leg away from the body to about 45°, then lower with control. Keep your torso completely upright.",
+    feel: "The outer glute (gluteus medius) working on the lifting leg. The standing leg stabilising.",
+    moves: "The leg abducts at the hip in a clean arc. The torso stays vertical — it does not lean.",
+    mistakes: ["Leaning the torso away to help the leg rise — the most common cheat, removes the challenge", "Using momentum or swinging", "Not controlling the return — the eccentric builds as much strength as the lift"]
+  },
+  "Piriformis Figure-4 Stretch": {
+    howTo: "Lie on your back, knees bent. Cross your right ankle over your left knee. Flex the right foot. Either hold here, or gently pull the left thigh toward your chest to deepen the stretch. Hold and breathe slowly.",
+    feel: "A deep stretch in the right glute and outer hip. Possibly into the hip joint itself. NOT pain in the knee.",
+    moves: "Nothing — this is a static hold. Let the breath gradually release the tension.",
+    mistakes: ["Forcing or bouncing the stretch aggressively", "Not flexing the foot — this protects the knee joint", "Holding the breath — breathing into the stretch is what releases the piriformis"]
+  },
+  "Landmine Chest Press": {
+    howTo: "Load one end of a barbell into a landmine attachment. Stand facing the bar, grip the end with both hands at chest height. Press the bar forward and slightly upward in a diagonal arc until arms are extended, then return.",
+    feel: "Chest and front deltoid working through a diagonal pushing motion that stays in front of you — not overhead. The fixed arc makes this safer for the shoulder than a standard press.",
+    moves: "Arms extend diagonally forward-upward. The bar moves in a fixed arc from the pivot point.",
+    mistakes: ["Letting the bar travel too far overhead — keep the arc in front of the body, not vertical", "Flaring elbows too wide", "Losing core tension and letting the lower back arch to push more weight"]
+  },
+  "Cable Triceps Pushdown (rope)": {
+    howTo: "Set cable to high position, attach the rope. Stand facing the machine, elbows pinned firmly at your sides. Push the rope downward and slightly apart at the bottom until arms are fully extended. Control the return slowly.",
+    feel: "Triceps contracting hard at full extension. The elbows act as a fixed hinge — only the forearms move.",
+    moves: "Only the forearms move. Elbows stay pinned at the sides. Torso stays upright.",
+    mistakes: ["Letting elbows drift forward and upward — the elbows must not move", "Leaning excessively forward to push more weight", "Using momentum and bouncing the stack"]
+  },
+  "Low-Incline DB Press (≤30°)": {
+    howTo: "Set bench to 30° or less — not a standard incline. Lie back, feet flat. Hold DBs at chest level, neutral or slightly inward grip. Press upward in a slight arc, then lower slowly. The 30° cap is deliberate — it keeps the shoulder safe for your tear.",
+    feel: "Lower and mid chest working. Front deltoid assisting. A controlled stretch at the bottom.",
+    moves: "Arms press upward in a slight inward arc. Shoulder blades stay retracted and depressed against the bench — they must not wing forward at the top.",
+    mistakes: ["Setting the bench too high — stay at ≤30°. This matters for your shoulder", "Bouncing the DBs off the chest", "Shoulder blades protracting and lifting off the bench at the top"]
+  },
+  "DB Triceps Kickback": {
+    howTo: "Set bench to ~45°. Lie chest-down on it. Hold light DBs with elbows bent to 90°. Extend the forearms back until the arms are straight, squeeze the triceps at full extension, then return.",
+    feel: "Full triceps contraction at the top. The chest support protects the lower back and keeps the movement honest — you cannot cheat with momentum.",
+    moves: "Only the forearms extend. The upper arms stay parallel to the floor — they must not drop.",
+    mistakes: ["Upper arms dropping as the weight gets heavy — if they drop, reduce the weight", "Going too heavy — this is a strict isolation exercise", "Swinging the arms or using body momentum"]
+  },
+  "Cable Crossover": {
+    howTo: "Set cables at mid-to-high position. Stand in the middle, one foot forward, slight forward lean from the hips. Bring hands together in front of the chest in a hugging arc, squeeze the chest at the peak, return with control.",
+    feel: "Inner chest squeezing hard at the peak. A good stretch across the pec at the start of each rep.",
+    moves: "Arms arc inward and slightly downward in a hugging motion. Torso stays still — no rotating or swaying.",
+    mistakes: ["Bending the elbows too much — that turns it into a row", "Letting the cables yank the arms back on the return — control the eccentric", "Using too much weight and losing the arc entirely"]
+  },
+  "Chest-Supported DB Row": {
+    howTo: "Set bench to ~30°. Lie chest-down, let arms hang. Pull the DBs up by driving the elbows back toward the hips. Squeeze the shoulder blades at the top, lower slowly. The chest stays on the bench the entire time.",
+    feel: "Mid-back and lats contracting. Shoulder blades squeezing together. The bench eliminates all lower back stress — that is the entire reason this variation is used here.",
+    moves: "Elbows drive back toward the hips. Shoulder blades retract. The torso does not move.",
+    mistakes: ["Shrugging the shoulders up to the ears — the traps are taking over", "Letting the lower back peel off the bench", "Rowing toward the chest instead of the hips — rowing to the hips emphasises lats, to the chest shifts it to rear delts"]
+  },
+  "Incline DB Curl": {
+    howTo: "Set bench to ~60°. Sit or lean back, arms hanging straight down. Curl both DBs up slowly, keeping the upper arm vertical and behind the body. Lower all the way down for the full stretch every rep. The long-head stretch at the bottom is the entire point of this variation.",
+    feel: "A deep biceps stretch at the bottom of every rep. The incline keeps the long head under tension through the full range — more stimulus than a standing curl.",
+    moves: "Forearms curl upward. Upper arms stay vertical and behind the body throughout.",
+    mistakes: ["Letting elbows swing forward at the top — reduces the stretch and defeats the purpose", "Using momentum with heavy weight", "Not going all the way down — the full stretch at the bottom is what makes this exercise valuable"]
+  },
+  "Half-Kneeling Lat Pulldown": {
+    howTo: "Kneel on one knee beside the cable column with a pad under the knee — no seat, which avoids coccyx pressure. Grip the overhead handle and pull down toward the collarbone by driving the elbows down and back.",
+    feel: "Lats contracting as the elbows come down and behind the body. A good stretch at the top of each rep.",
+    moves: "Elbows drive downward and behind the body. The torso may lean back 10–15° — that is fine.",
+    mistakes: ["Pulling with the biceps instead of initiating with the lats — think 'elbows to back pockets'", "Excessive backward lean — it becomes a row", "Gripping too wide — reduces range of motion"]
+  },
+  "Hammer Curl": {
+    howTo: "Stand, DBs at sides, palms facing in (neutral grip). Curl upward keeping the wrist completely neutral throughout. Lower fully to a dead hang.",
+    feel: "Brachialis and brachioradialis working alongside the biceps. Over time this produces a thicker, fuller arm than supinated curls alone.",
+    moves: "The forearm flexes at the elbow. The wrist stays neutral — do not rotate or bend it at the top.",
+    mistakes: ["Swinging the torso to generate momentum", "Rotating to a supinated grip at the top of the rep", "Going too heavy and losing the strict movement"]
+  },
+  "Straight-Arm Cable Pullover": {
+    howTo: "Stand facing a high cable, grip the straight bar with both hands. Take a slight forward lean from the hips. Keeping the arms straight (soft elbow bend is fine), pull the cable downward in a long arc until the hands reach the thighs. Return slowly.",
+    feel: "Lats stretching at the top, contracting hard at the bottom. No bicep involvement — the arms stay straight throughout.",
+    moves: "Arms swing in a long arc from overhead to the hips. The torso stays completely still.",
+    mistakes: ["Bending the elbows — this turns it into a pulldown and removes the lat stretch", "Letting the cable pull the arms back too fast — control the full eccentric", "Leaning too far forward from the waist and turning it into a row"]
+  },
+  "Barbell Hip Thrust": {
+    howTo: "Sit on the floor with your upper back against a bench. Roll a padded barbell across your hips. Feet flat, hip-width apart. Drive through your heels, extend the hips, and squeeze the glutes hard at the top. Lower slowly.",
+    feel: "Gluteus maximus working at maximum activation. Hamstrings assisting. The lower back stays neutral at the top — it must NOT arch.",
+    moves: "Hips extend and rise. The upper back pivots on the bench. The chin stays neutral throughout.",
+    mistakes: ["Hyperextending the lower back at the top — keep the RIBS DOWN. This is the most important cue", "Pushing through the toes instead of the heels", "Chin jutting upward — keep it neutral or slightly tucked", "Not reaching full hip extension at the top — that is where the glute is maximally loaded"]
+  },
+  "Lying Leg Curl": {
+    howTo: "Lie face-down on the machine. The pad sits just above the heels. Curl the heels toward the glutes, pause briefly, then lower under control. This is face-down — NOT the seated version. That distinction matters for your disc.",
+    feel: "Hamstrings contracting through the full range. A stretch at full extension at the bottom of every rep.",
+    moves: "The knees flex. The hips stay flat on the pad throughout — they must not rise.",
+    mistakes: ["Letting the hips lift off the pad — this means the lower back is taking over, exactly what to avoid with a disc bulge. Reduce the weight if this happens", "Going too heavy and losing full range", "Releasing quickly on the way down — the slow eccentric is where hypertrophy happens"]
+  },
+  "Bulgarian Split Squat (DBs)": {
+    howTo: "Stand in front of a bench. Step one foot back and rest the top of the foot on the bench. Hold DBs at your sides. Lower the back knee toward the floor, then drive through the front heel to stand. A slight forward lean of the torso is normal and increases glute activation.",
+    feel: "The front glute and quad working hard. A hip flexor stretch in the back leg. The front leg does all the work.",
+    moves: "The front knee bends in a controlled descent. A slight forward torso lean is correct and expected.",
+    mistakes: ["Front foot too close to the bench — the front knee travels excessively forward", "Letting the front knee cave inward — drive it out over the second toe", "Pushing off the back foot to assist — the front leg does 100% of the work"]
+  },
+  "Standing Calf Raise": {
+    howTo: "Stand with the balls of your feet on an elevated surface, heels hanging off the edge. Rise as high as possible onto tiptoes, pause at the top, then lower the heels as far below the step as possible for a full stretch. 2 seconds up, 2 seconds down.",
+    feel: "Gastrocnemius (upper calf) working through the full range. The deep stretch at the bottom is critical for hypertrophy — it is not optional.",
+    moves: "The ankle plantarflexes and dorsiflexes through the full range.",
+    mistakes: ["Bouncing at the bottom instead of getting the full stretch — the stretch is the stimulus", "Partial range — tiny rises build nothing", "Not pausing at the top", "Moving too fast"]
+  },
+  "Cable Kickback": {
+    howTo: "Attach an ankle cuff to the low cable. Face the machine, hinge slightly at the hip, hold the frame lightly for balance. Keeping a slight knee bend, drive the leg straight back by contracting the glute. Return under control.",
+    feel: "Glute max extending the hip. NOT the lower back or hamstrings taking over.",
+    moves: "The hip extends. The pelvis stays neutral — the lower back must not arch.",
+    mistakes: ["Arching the lower back to get the leg higher — the back is compensating for a fatigued glute. Lower the range if this happens", "Bending too much at the hip so the leg can barely move back", "Swinging with momentum instead of controlled extension"]
+  },
+  "Landmine Press": {
+    howTo: "Half-kneeling with the left knee down on a pad. Hold the end of the barbell in the right hand at shoulder height. Press forward and slightly upward in a diagonal arc until the arm is extended. Return slowly. The diagonal path is the key — it keeps the supraspinatus entirely out of the impingement zone.",
+    feel: "Front and lateral deltoid working through a pressing movement that challenges the shoulder without the impingement risk of a vertical press.",
+    moves: "The arm presses forward-upward in a diagonal arc. The torso stays upright — do not lean backward.",
+    mistakes: ["Letting the bar travel too far overhead and vertical — this defeats the entire safety purpose", "Leaning the torso backward to get the weight up — reduce the load instead", "Using the same arm as the kneeling knee — use the opposite arm for stability"]
+  },
+  "Lean-Away Cable Lateral Raise": {
+    howTo: "Stand side-on to the low cable, hold the handle with the far hand. Lean slightly away from the cable to create a stretch at the bottom. Raise the arm to shoulder height in the scapular plane — thumb pointing up, arm about 30° in front of the body, NOT straight out to the side. Lower with control.",
+    feel: "Lateral deltoid working through a better range and with constant tension compared to a dumbbell raise. A stretch at the bottom from the lean.",
+    moves: "The arm raises in the scapular plane — 30° forward of the side. The torso stays still throughout.",
+    mistakes: ["Raising straight out to the side in the frontal plane instead of the scapular plane — increases impingement risk. Move the arm slightly forward", "Shrugging the shoulder up toward the ear", "Going above shoulder height"]
+  },
+  "Cable Face Pull": {
+    howTo: "Set the rope at eye level. Step back, grip the rope with thumbs facing you. Pull toward your face by driving the elbows HIGH and wide, finishing with hands beside the ears and the shoulders fully externally rotated. Return under control.",
+    feel: "Rear delts and external rotators (infraspinatus and teres minor) working — the same muscles targeted in your shoulder rehab. This directly supports cuff health.",
+    moves: "The rope pulls to face level. The elbows go HIGH — this is essential and is what creates the external rotation benefit.",
+    mistakes: ["Pulling too low — turns it into a row and removes the external rotation", "Keeping the elbows down — eliminates the entire benefit for the rotator cuff", "Too much weight — keep it light and deliberate. Quality of movement is everything here"]
+  },
+  "Chest-Supported T-Bar Row": {
+    howTo: "Lie chest-down on the T-bar machine with the chest pad supporting you. Set your shoulder blades before each rep, then row the handles toward the chest by driving the elbows back. Squeeze the mid-back hard at the top. Lower slowly.",
+    feel: "Mid-traps and rhomboids squeezing. Lats working. The chest support eliminates lower back stress completely — that is why this variation is used here.",
+    moves: "Elbows drive back. Shoulder blades retract and depress. The torso stays completely still.",
+    mistakes: ["Shrugging the shoulders up to the ears — traps taking over from the mid-back", "Letting the shoulders roll forward between reps — reset the scapula before every rep", "Too much weight — you lose the mid-back connection entirely"]
+  },
+  "Cable Rear-Delt Fly": {
+    howTo: "Set a single cable at head height. Stand slightly forward of the machine with a slight forward lean. With a slight elbow bend, sweep the arm back in a wide horizontal arc. Squeeze the rear delt at the end of the range. Return slowly.",
+    feel: "Posterior deltoid burning. Shoulders staying down — NOT the traps.",
+    moves: "The arm sweeps back in a horizontal arc. The elbow stays slightly bent throughout.",
+    mistakes: ["Bending the elbows too much — it becomes a row", "Shrugging the shoulder up", "Going too heavy — the rear delt is small and will be overridden by the traps as soon as the load is too high"]
+  },
+  "Hack Squat": {
+    howTo: "Position yourself in the machine, back flat against the pad, feet shoulder-width on the platform. Lower under control until thighs reach parallel or below. Drive through the full foot to press back up. Your back stays on the pad throughout.",
+    feel: "Quads working hard. The back is fully supported — this is the key reason the hack squat is used here instead of a barbell squat.",
+    moves: "The knees bend and extend. The back stays pinned to the pad.",
+    mistakes: ["Lower back peeling off the pad at the bottom — posterior pelvic tilt loads the disc. This is the most important thing to avoid. Reduce the range if this happens", "Feet too narrow — excess stress on the knees", "Locking out the knees aggressively at the top"]
+  },
+  "Leg Extension": {
+    howTo: "Sit in the machine with the pad just above the ankles. Use a coccyx or wedge cushion on the seat. Extend both legs to straight, pause briefly at the top, then lower slowly.",
+    feel: "Quads contracting through the full extension. A burn at the top with a brief pause.",
+    moves: "The knees extend. The thighs stay on the seat — they must not lift.",
+    mistakes: ["Using momentum and swinging the weight up", "Partial range — extend all the way to straight", "Releasing quickly on the way down — the slow eccentric is the growth stimulus"]
+  },
+  "Walking DB Lunges": {
+    howTo: "Hold DBs at your sides. Step forward into a lunge, lowering the back knee toward the floor, then drive off the front foot and bring the back foot forward into the next step. Keep the torso upright throughout.",
+    feel: "Front quad and glute working hard as the knee bends. Core stabilising with every step.",
+    moves: "Alternating legs stepping forward. Torso stays tall and upright.",
+    mistakes: ["Front knee caving inward — drive the knee out over the second toe", "Torso leaning too far forward", "Front foot landing too close to the body — the knee then travels far past the toes", "Taking too short a step — reduces glute involvement"]
+  },
+  "Bird-Dog": {
+    howTo: "On hands and knees, wrists under shoulders, knees under hips. Extend the right arm forward and left leg back simultaneously, both parallel to the floor. Hold 2 full seconds. Return slowly and deliberately. Repeat on the other side.",
+    feel: "Deep spinal stabilisers (multifidus) working. The glute of the extended leg. Core bracing to resist ANY rotation or sagging.",
+    moves: "The arm and opposite leg extend slowly. Everything else stays completely still — this stillness is the entire challenge.",
+    mistakes: ["Letting the lower back arch or rotate — the whole exercise is about preventing this. If it happens, reduce the leg range", "Raising the leg too high — this creates lumbar extension, the thing to avoid", "Moving fast with momentum — slow, deliberate, and controlled"]
+  },
+  "Pallof Press": {
+    howTo: "Set the cable at chest height. Stand side-on to the machine, feet shoulder-width. Hold the handle at your sternum. Press the cable straight out in front until arms are extended, hold 1–2 seconds, bring it back to the sternum. The cable constantly tries to rotate you toward it — resist that rotation completely.",
+    feel: "Deep core anti-rotation muscles firing hard — obliques and transverse abdominis. The cable pulls you to rotate but your torso holds perfectly square. That tension is the exercise.",
+    moves: "Only the arms extend and return. The torso does not rotate at all.",
+    mistakes: ["Standing too close to the cable — removes the anti-rotation challenge completely", "Letting the torso rotate as the arms extend — reduce the weight if this happens", "Going too heavy — the anti-rotation challenge disappears and it just becomes a press"]
+  },
+};
+
+const days = [
+  {
+    day: 1, label: "PUSH", focus: "Chest + Triceps", color: "#E8643A",
+    rehab: {
+      warmup: [
+        { type: "shoulder", icon: "🔵", name: "Pendulum Swings", detail: "2 × 30s each direction" },
+        { type: "glute", icon: "🟠", name: "Pelvic Tilt", detail: "2 × 12 reps, 3s hold" },
+      ],
+      triset: { label: "TRISET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Side-Lying External Rotation", detail: "12 reps, 1–2kg" },
+        { type: "glute", icon: "🟠", name: "Clamshell", detail: "15 reps each side" },
+        { type: "shoulder", icon: "🔵", name: "Band Pull-Apart", detail: "20 reps" },
+      ]},
+      superset: { label: "SUPERSET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Supine Anterior Deltoid Raise", detail: "10 reps, light DB" },
+        { type: "glute", icon: "🟠", name: "Glute Bridge", detail: "15 reps, 2s squeeze" },
+      ]},
+      cooldown: [
+        { type: "shoulder", icon: "🔵", name: "Cross-Body Stretch", detail: "2 × 30s each side" },
+        { type: "glute", icon: "🟠", name: "Piriformis Figure-4 Stretch", detail: "2 × 30s each side" },
+      ]
+    },
+    weights: [
+      { type: "SUPERSET A", note: "3 sets · 60s rest", exercises: [
+        { name: "Landmine Chest Press", sets: "3 × 10", note: "Standing or half-kneeling" },
+        { name: "Cable Triceps Pushdown (rope)", sets: "3 × 12–15", note: "Standing, elbows pinned" },
+      ]},
+      { type: "SUPERSET B", note: "3 sets · 60s rest", exercises: [
+        { name: "Low-Incline DB Press (≤30°)", sets: "3 × 10–12", note: "Neutral grip, no arch" },
+        { name: "DB Triceps Kickback", sets: "3 × 12", note: "Chest-supported on incline bench" },
+      ]},
+      { type: "FINISHER", note: "2 sets to near-failure", exercises: [
+        { name: "Cable Crossover", sets: "2 × 15", note: "Standing, staggered stance" },
+      ]},
+    ]
+  },
+  {
+    day: 2, label: "PULL", focus: "Back + Biceps", color: "#4A90D9",
+    rehab: {
+      warmup: [
+        { type: "shoulder", icon: "🔵", name: "Pendulum Swings", detail: "2 × 30s each direction" },
+        { type: "glute", icon: "🟠", name: "Cat-Cow", detail: "2 × 10 slow breaths" },
+      ],
+      triset: { label: "TRISET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Band Pull-Apart", detail: "20 reps" },
+        { type: "glute", icon: "🟠", name: "Single-Leg Glute Bridge", detail: "12 reps each leg" },
+        { type: "shoulder", icon: "🔵", name: "Side-Lying External Rotation", detail: "12 reps, 1–2kg" },
+      ]},
+      superset: { label: "SUPERSET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Supine Anterior Deltoid Raise", detail: "10 reps, light DB" },
+        { type: "glute", icon: "🟠", name: "Hip Abduction (standing cable)", detail: "15 reps each side" },
+      ]},
+      cooldown: [
+        { type: "shoulder", icon: "🔵", name: "Cross-Body Stretch", detail: "2 × 30s each side" },
+        { type: "glute", icon: "🟠", name: "Piriformis Figure-4 Stretch", detail: "2 × 30s each side" },
+      ]
+    },
+    weights: [
+      { type: "SUPERSET A", note: "3 sets · 60s rest", exercises: [
+        { name: "Chest-Supported DB Row", sets: "3 × 10", note: "Prone on 30° incline bench" },
+        { name: "Incline DB Curl", sets: "3 × 12", note: "Supine on incline, long-head bias" },
+      ]},
+      { type: "SUPERSET B", note: "3 sets · 60s rest", exercises: [
+        { name: "Half-Kneeling Lat Pulldown", sets: "3 × 10–12", note: "Knee on pad — no seat" },
+        { name: "Hammer Curl", sets: "3 × 12", note: "Standing, alternating" },
+      ]},
+      { type: "FINISHER", note: "2 sets", exercises: [
+        { name: "Straight-Arm Cable Pullover", sets: "2 × 12–15", note: "Standing, lat finisher" },
+      ]},
+    ]
+  },
+  {
+    day: 3, label: "POSTERIOR", focus: "Glutes + Hamstrings", color: "#5BB85D",
+    rehab: {
+      warmup: [
+        { type: "shoulder", icon: "🔵", name: "Pendulum Swings", detail: "2 × 30s each direction" },
+        { type: "glute", icon: "🟠", name: "Pelvic Tilt", detail: "2 × 12 reps" },
+      ],
+      triset: { label: "TRISET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Side-Lying External Rotation", detail: "12 reps, 1–2kg" },
+        { type: "glute", icon: "🟠", name: "Fire Hydrant", detail: "15 reps each side" },
+        { type: "shoulder", icon: "🔵", name: "Band Pull-Apart", detail: "20 reps" },
+      ]},
+      superset: { label: "SUPERSET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Supine Anterior Deltoid Raise", detail: "10 reps, light DB" },
+        { type: "glute", icon: "🟠", name: "Donkey Kick", detail: "15 reps each side" },
+      ]},
+      cooldown: [
+        { type: "shoulder", icon: "🔵", name: "Cross-Body Stretch", detail: "2 × 30s each side" },
+        { type: "glute", icon: "🟠", name: "Piriformis Figure-4 Stretch", detail: "2 × 30s each side" },
+      ]
+    },
+    weights: [
+      { type: "SUPERSET A", note: "4 sets · 90s rest", exercises: [
+        { name: "Barbell Hip Thrust", sets: "4 × 10", note: "Pad on hips, drive through heels" },
+        { name: "Lying Leg Curl", sets: "4 × 12", note: "Face-down — not seated" },
+      ]},
+      { type: "SUPERSET B", note: "3 sets · 90s rest", exercises: [
+        { name: "Bulgarian Split Squat (DBs)", sets: "3 × 10 / leg", note: "Slight forward lean, neutral spine" },
+        { name: "Standing Calf Raise", sets: "3 × 15", note: "Full range, slow eccentric" },
+      ]},
+      { type: "FINISHER", note: "2 sets", exercises: [
+        { name: "Cable Kickback", sets: "2 × 15", note: "Standing, hip extension only" },
+      ]},
+    ]
+  },
+  {
+    day: 4, label: "SHOULDERS", focus: "Delts + Upper Back", color: "#9B59B6",
+    rehab: {
+      warmup: [
+        { type: "shoulder", icon: "🔵", name: "Pendulum Swings", detail: "2 × 30s each direction" },
+        { type: "glute", icon: "🟠", name: "Cat-Cow", detail: "2 × 10 slow breaths" },
+      ],
+      triset: { label: "TRISET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Side-Lying External Rotation", detail: "12 reps, 1–2kg" },
+        { type: "glute", icon: "🟠", name: "Clamshell", detail: "15 reps each side" },
+        { type: "shoulder", icon: "🔵", name: "Band Pull-Apart", detail: "20 reps" },
+      ]},
+      superset: { label: "SUPERSET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Supine Anterior Deltoid Raise", detail: "10 reps, light DB" },
+        { type: "glute", icon: "🟠", name: "Side Plank (left side)", detail: "30s — right side when cleared" },
+      ]},
+      cooldown: [
+        { type: "shoulder", icon: "🔵", name: "Cross-Body Stretch", detail: "2 × 30s each side" },
+        { type: "glute", icon: "🟠", name: "Piriformis Figure-4 Stretch", detail: "2 × 30s each side" },
+      ]
+    },
+    weights: [
+      { type: "TRISET — DELTS", note: "3 rounds · 90s rest · all 3 heads", exercises: [
+        { name: "Landmine Press", sets: "3 × 10", note: "Half-kneeling, diagonal arc" },
+        { name: "Lean-Away Cable Lateral Raise", sets: "3 × 12", note: "Thumbs up, scapular plane" },
+        { name: "Cable Face Pull", sets: "3 × 15", note: "Rope at eye level, elbows HIGH" },
+      ]},
+      { type: "SUPERSET", note: "3 sets · 60s rest", exercises: [
+        { name: "Chest-Supported T-Bar Row", sets: "3 × 10", note: "Chest on pad, retract scapula" },
+        { name: "Cable Rear-Delt Fly", sets: "3 × 12", note: "Standing, light weight" },
+      ]},
+    ]
+  },
+  {
+    day: 5, label: "QUADS", focus: "Quad-Dominant + Core", color: "#E8A838",
+    rehab: {
+      warmup: [
+        { type: "shoulder", icon: "🔵", name: "Pendulum Swings", detail: "2 × 30s each direction" },
+        { type: "glute", icon: "🟠", name: "Pelvic Tilt", detail: "2 × 12 reps" },
+      ],
+      triset: { label: "TRISET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Band Pull-Apart", detail: "20 reps" },
+        { type: "glute", icon: "🟠", name: "Single-Leg Glute Bridge", detail: "12 reps each leg" },
+        { type: "shoulder", icon: "🔵", name: "Side-Lying External Rotation", detail: "12 reps, 1–2kg" },
+      ]},
+      superset: { label: "SUPERSET — 3 rounds, 30s rest", exercises: [
+        { type: "shoulder", icon: "🔵", name: "Supine Anterior Deltoid Raise", detail: "10 reps, light DB" },
+        { type: "glute", icon: "🟠", name: "Hip Abduction (standing cable)", detail: "15 reps each side" },
+      ]},
+      cooldown: [
+        { type: "shoulder", icon: "🔵", name: "Cross-Body Stretch", detail: "2 × 30s each side" },
+        { type: "glute", icon: "🟠", name: "Piriformis Figure-4 Stretch", detail: "2 × 30s each side" },
+      ]
+    },
+    weights: [
+      { type: "SUPERSET A", note: "4 sets · 90s rest", exercises: [
+        { name: "Hack Squat", sets: "4 × 10", note: "Back on pad, full range" },
+        { name: "Leg Extension", sets: "3 × 12", note: "Use coccyx cushion on seat" },
+      ]},
+      { type: "SUPERSET B", note: "3 sets · 60s rest", exercises: [
+        { name: "Walking DB Lunges", sets: "3 × 10 / leg", note: "Upright torso, neutral spine" },
+        { name: "Standing Calf Raise", sets: "3 × 15", note: "Slow eccentric, full stretch" },
+      ]},
+      { type: "CORE TRISET", note: "2 rounds · quality over speed", exercises: [
+        { name: "Side Plank", sets: "30s each side", note: "Left only until right shoulder cleared" },
+        { name: "Bird-Dog", sets: "8 reps / side", note: "2s hold, slow and controlled" },
+        { name: "Pallof Press", sets: "10 reps / side", note: "Anti-rotation, cable at chest height" },
+      ]},
+    ]
+  }
+];
+
+const avoidList = [
+  "Overhead press / shoulder press",
+  "Standard lateral raises",
+  "Upright rows",
+  "Seated machines (coccyx pressure)",
+  "Heavy back squat / conventional deadlift",
+  "Seated leg curl",
+  "Sit-ups / crunches",
+  "Behind-the-neck movements",
+  "Side plank on right side (until shoulder cleared)",
+];
+
+function WorkoutPlan() {
+  const [activeDay, setActiveDay] = useState(0);
+  const [activeTab, setActiveTab] = useState("rehab");
+  const [openExercise, setOpenExercise] = useState(null);
+  const day = days[activeDay];
+
+  const toggleEx = (name) => setOpenExercise(prev => prev === name ? null : name);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#0D0D0D", color: "#F0EDE8", fontFamily: "'Georgia', serif", paddingBottom: 60, maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ padding: "28px 20px 0", borderBottom: `3px solid ${day.color}`, transition: "border-color 0.3s" }}>
+        <div style={{ fontSize: 11, letterSpacing: 4, color: "#888", marginBottom: 4, fontFamily: "monospace" }}>5-DAY HYPERTROPHY PROGRAM</div>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: "#555", marginBottom: 16, fontFamily: "monospace" }}>20 MIN REHAB · 20 MIN WEIGHTS · TAP EXERCISE FOR NOTES</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 0, overflowX: "auto", paddingBottom: 2 }}>
+          {days.map((d, i) => (
+            <button key={i} onClick={() => { setActiveDay(i); setActiveTab("rehab"); setOpenExercise(null); }}
+              style={{ background: activeDay === i ? d.color : "transparent", color: activeDay === i ? "#000" : "#666", border: `1px solid ${activeDay === i ? d.color : "#333"}`, borderRadius: 4, padding: "8px 14px", cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: 2, fontWeight: activeDay === i ? 700 : 400, whiteSpace: "nowrap", transition: "all 0.2s" }}>
+              D{d.day} {d.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "20px 20px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+          <span style={{ fontSize: 36, fontWeight: 700, color: day.color, transition: "color 0.3s" }}>Day {day.day}</span>
+          <span style={{ fontSize: 18, color: "#aaa" }}>{day.focus}</span>
+        </div>
+        <div style={{ display: "flex", gap: 0, marginTop: 16, borderBottom: "1px solid #222" }}>
+          {["rehab", "weights"].map(tab => (
+            <button key={tab} onClick={() => { setActiveTab(tab); setOpenExercise(null); }}
+              style={{ background: "transparent", color: activeTab === tab ? day.color : "#555", border: "none", borderBottom: activeTab === tab ? `2px solid ${day.color}` : "2px solid transparent", padding: "8px 20px", cursor: "pointer", fontFamily: "monospace", fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: -1, transition: "all 0.2s" }}>
+              {tab === "rehab" ? "🩺 Rehab (20 min)" : "🏋️ Weights (20 min)"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "20px 20px 0" }}>
+        {activeTab === "rehab" ? (
+          <div>
+            <Section label="WARM-UP" sublabel="2 rounds · alternating" color={day.color}>
+              {day.rehab.warmup.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
+            </Section>
+            <Section label={day.rehab.triset.label} color={day.color}>
+              {day.rehab.triset.exercises.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
+            </Section>
+            <Section label={day.rehab.superset.label} color={day.color}>
+              {day.rehab.superset.exercises.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
+            </Section>
+            <Section label="COOL-DOWN" sublabel="static holds" color={day.color}>
+              {day.rehab.cooldown.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
+            </Section>
+            <div style={{ marginTop: 20, padding: "12px 14px", background: "#161616", borderRadius: 6, display: "flex", gap: 20, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 12, color: "#888" }}>🔵 Shoulder rehab</span>
+              <span style={{ fontSize: 12, color: "#888" }}>🟠 Glute / coccyx rehab</span>
+            </div>
+          </div>
+        ) : (
+          <div>
+            {day.weights.map((block, i) => (
+              <WeightBlock key={i} block={block} color={day.color} open={openExercise} onToggle={toggleEx} />
+            ))}
+            <div style={{ marginTop: 24, padding: "16px", background: "#1A0A0A", borderRadius: 8, border: "1px solid #3A1A1A" }}>
+              <div style={{ fontSize: 10, letterSpacing: 3, color: "#E8643A", marginBottom: 10, fontFamily: "monospace" }}>⚠ ALWAYS AVOID</div>
+              {avoidList.map((item, i) => (
+                <div key={i} style={{ fontSize: 12, color: "#888", padding: "3px 0", borderBottom: i < avoidList.length - 1 ? "1px solid #1E1E1E" : "none" }}>— {item}</div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: "32px 20px 0" }}>
+        <div style={{ fontSize: 10, letterSpacing: 3, color: "#444", marginBottom: 12, fontFamily: "monospace" }}>WEEKLY OVERVIEW</div>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {[
+            { d: "MON", label: "Push", color: "#E8643A" },
+            { d: "TUE", label: "Pull", color: "#4A90D9" },
+            { d: "WED", label: "REST", color: "#333" },
+            { d: "THU", label: "Posterior", color: "#5BB85D" },
+            { d: "FRI", label: "Shoulders", color: "#9B59B6" },
+            { d: "SAT", label: "Quads", color: "#E8A838" },
+            { d: "SUN", label: "REST", color: "#333" },
+          ].map((w, i) => (
+            <div key={i} style={{ flex: 1, minWidth: 42, background: "#111", borderTop: `3px solid ${w.color}`, borderRadius: 4, padding: "8px 4px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, letterSpacing: 1, color: "#666", fontFamily: "monospace" }}>{w.d}</div>
+              <div style={{ fontSize: 10, color: w.color, marginTop: 3, fontWeight: 600 }}>{w.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "20px 20px 0" }}>
+        <div style={{ padding: "12px 14px", background: "#111", borderRadius: 6, border: "1px solid #222", fontSize: 11, color: "#666", lineHeight: 1.6 }}>
+          <strong style={{ color: "#888" }}>Rep target:</strong> 8–15 reps, 1–2 reps in reserve.<br />
+          <strong style={{ color: "#888" }}>Stop if:</strong> Sharp shoulder pain at a specific arc, leg numbness/tingling, or tailbone pain persisting 24h+ after a session.<br />
+          <strong style={{ color: "#888" }}>Side plank:</strong> Left side only until right shoulder is cleared by your surgeon.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ label, sublabel, color, children }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid #1E1E1E" }}>
+        <span style={{ fontSize: 10, letterSpacing: 3, color, fontFamily: "monospace", fontWeight: 700 }}>{label}</span>
+        {sublabel && <span style={{ fontSize: 10, color: "#444", fontFamily: "monospace" }}>{sublabel}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ExRow({ ex, open, onToggle, color }) {
+  const info = EX[ex.name];
+  const isOpen = open === ex.name;
+  return (
+    <div style={{ borderBottom: "1px solid #161616" }}>
+      <div onClick={() => info && onToggle(ex.name)}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 0", cursor: info ? "pointer" : "default" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 14, marginTop: 1 }}>{ex.icon}</span>
+          <div>
+            <span style={{ fontSize: 13, color: isOpen ? color : "#DDD", transition: "color 0.2s" }}>{ex.name}</span>
+            {info && <span style={{ fontSize: 9, color: isOpen ? color : "#555", marginLeft: 8, fontFamily: "monospace" }}>{isOpen ? "▲" : "▼"}</span>}
+          </div>
+        </div>
+        <span style={{ fontSize: 11, color: "#666", textAlign: "right", marginLeft: 12, fontFamily: "monospace", flexShrink: 0, paddingTop: 2 }}>{ex.detail}</span>
+      </div>
+      {isOpen && info && <InfoPanel info={info} color={color} />}
+    </div>
+  );
+}
+
+function WeightBlock({ block, color, open, onToggle }) {
+  return (
+    <div style={{ marginBottom: 20, background: "#111", borderRadius: 8, overflow: "hidden", border: "1px solid #1E1E1E" }}>
+      <div style={{ padding: "10px 14px", background: "#161616", borderBottom: "1px solid #1E1E1E", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 10, letterSpacing: 3, color, fontFamily: "monospace", fontWeight: 700 }}>{block.type}</span>
+        <span style={{ fontSize: 10, color: "#444", fontFamily: "monospace" }}>{block.note}</span>
+      </div>
+      {block.exercises.map((ex, i) => {
+        const info = EX[ex.name];
+        const isOpen = open === ex.name;
+        return (
+          <div key={i} style={{ borderBottom: i < block.exercises.length - 1 ? "1px solid #191919" : "none" }}>
+            <div onClick={() => info && onToggle(ex.name)}
+              style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, cursor: info ? "pointer" : "default" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 14, color: isOpen ? color : "#EEE", transition: "color 0.2s" }}>{ex.name}</span>
+                  {info && <span style={{ fontSize: 9, color: isOpen ? color : "#555", fontFamily: "monospace" }}>{isOpen ? "▲" : "▼"}</span>}
+                </div>
+                <div style={{ fontSize: 11, color: "#555", marginTop: 3 }}>{ex.note}</div>
+              </div>
+              <div style={{ fontSize: 12, color, fontFamily: "monospace", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>{ex.sets}</div>
+            </div>
+            {isOpen && info && (
+              <div style={{ padding: "0 14px 4px" }}>
+                <InfoPanel info={info} color={color} />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function InfoPanel({ info, color }) {
+  return (
+    <div style={{ background: "#080808", borderLeft: `2px solid ${color}`, marginBottom: 10, padding: "14px 16px", borderRadius: "0 6px 6px 0" }}>
+      <InfoSect label="HOW TO" color={color}>
+        <p style={{ margin: 0, fontSize: 13, color: "#CCC", lineHeight: 1.65 }}>{info.howTo}</p>
+      </InfoSect>
+      <InfoSect label="FEEL" color={color}>
+        <p style={{ margin: 0, fontSize: 13, color: "#CCC", lineHeight: 1.65 }}>{info.feel}</p>
+      </InfoSect>
+      <InfoSect label="WHAT MOVES" color={color}>
+        <p style={{ margin: 0, fontSize: 13, color: "#CCC", lineHeight: 1.65 }}>{info.moves}</p>
+      </InfoSect>
+      <InfoSect label="COMMON MISTAKES" color={color} last>
+        {info.mistakes.map((m, i) => (
+          <div key={i} style={{ display: "flex", gap: 8, marginTop: i === 0 ? 0 : 8, alignItems: "flex-start" }}>
+            <span style={{ color: "#E8643A", fontSize: 11, marginTop: 2, flexShrink: 0 }}>⚠</span>
+            <span style={{ fontSize: 13, color: "#AAA", lineHeight: 1.55 }}>{m}</span>
+          </div>
+        ))}
+      </InfoSect>
+    </div>
+  );
+}
+
+function InfoSect({ label, color, children, last }) {
+  return (
+    <div style={{ marginBottom: last ? 0 : 16 }}>
+      <div style={{ fontSize: 9, letterSpacing: 3, color, fontFamily: "monospace", marginBottom: 7, opacity: 0.85 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<WorkoutPlan />);
+</script>
+</body>
+</html>
