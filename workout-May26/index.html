@@ -7,8 +7,17 @@
 <title>Workout — May 2026</title>
 <style>
   html, body { margin: 0; padding: 0; background: #0D0D0D; }
-  body { font-family: Georgia, serif; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 17px;
+    line-height: 1.5;
+  }
   #root { min-height: 100vh; }
+  button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  /* big tap targets */
+  button, [role="button"] { min-height: 44px; }
 </style>
 </head>
 <body>
@@ -469,39 +478,38 @@ function WorkoutPlan() {
   const toggleEx = (name) => setOpenExercise(prev => prev === name ? null : name);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0D0D0D", color: "#F0EDE8", fontFamily: "'Georgia', serif", paddingBottom: 60, maxWidth: 720, margin: "0 auto" }}>
-      <div style={{ padding: "28px 20px 0", borderBottom: `3px solid ${day.color}`, transition: "border-color 0.3s" }}>
-        <div style={{ fontSize: 11, letterSpacing: 4, color: "#888", marginBottom: 4, fontFamily: "monospace" }}>5-DAY HYPERTROPHY PROGRAM</div>
-        <div style={{ fontSize: 11, letterSpacing: 2, color: "#555", marginBottom: 16, fontFamily: "monospace" }}>20 MIN REHAB · 20 MIN WEIGHTS · TAP EXERCISE FOR NOTES</div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 0, overflowX: "auto", paddingBottom: 2 }}>
+    <div style={{ minHeight: "100vh", background: "#0D0D0D", color: "#F5F5F5", paddingBottom: 60, maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ padding: "20px 16px 0", borderBottom: `4px solid ${day.color}`, transition: "border-color 0.3s" }}>
+        <div style={{ fontSize: 13, color: "#BBB", marginBottom: 14, fontWeight: 600 }}>5-day hypertrophy · 20 min rehab + 20 min weights · tap any exercise for notes</div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 0, overflowX: "auto", paddingBottom: 4 }}>
           {days.map((d, i) => (
             <button key={i} onClick={() => { setActiveDay(i); setActiveTab("rehab"); setOpenExercise(null); }}
-              style={{ background: activeDay === i ? d.color : "transparent", color: activeDay === i ? "#000" : "#666", border: `1px solid ${activeDay === i ? d.color : "#333"}`, borderRadius: 4, padding: "8px 14px", cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: 2, fontWeight: activeDay === i ? 700 : 400, whiteSpace: "nowrap", transition: "all 0.2s" }}>
+              style={{ background: activeDay === i ? d.color : "#1A1A1A", color: activeDay === i ? "#000" : "#E0E0E0", border: `2px solid ${activeDay === i ? d.color : "#2A2A2A"}`, borderRadius: 8, padding: "10px 14px", cursor: "pointer", fontSize: 15, fontWeight: activeDay === i ? 800 : 600, whiteSpace: "nowrap", transition: "all 0.2s", flexShrink: 0 }}>
               D{d.day} {d.label}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: "20px 20px 0" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-          <span style={{ fontSize: 36, fontWeight: 700, color: day.color, transition: "color 0.3s" }}>Day {day.day}</span>
-          <span style={{ fontSize: 18, color: "#aaa" }}>{day.focus}</span>
+      <div style={{ padding: "18px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 38, fontWeight: 800, color: day.color, lineHeight: 1.1 }}>Day {day.day}</span>
+          <span style={{ fontSize: 20, color: "#E0E0E0", fontWeight: 600 }}>{day.focus}</span>
         </div>
-        <div style={{ display: "flex", gap: 0, marginTop: 16, borderBottom: "1px solid #222" }}>
+        <div style={{ display: "flex", gap: 0, marginTop: 14, borderBottom: "1px solid #2A2A2A" }}>
           {["rehab", "weights"].map(tab => (
             <button key={tab} onClick={() => { setActiveTab(tab); setOpenExercise(null); }}
-              style={{ background: "transparent", color: activeTab === tab ? day.color : "#555", border: "none", borderBottom: activeTab === tab ? `2px solid ${day.color}` : "2px solid transparent", padding: "8px 20px", cursor: "pointer", fontFamily: "monospace", fontSize: 12, letterSpacing: 3, textTransform: "uppercase", marginBottom: -1, transition: "all 0.2s" }}>
-              {tab === "rehab" ? "🩺 Rehab (20 min)" : "🏋️ Weights (20 min)"}
+              style={{ background: "transparent", color: activeTab === tab ? day.color : "#999", border: "none", borderBottom: activeTab === tab ? `3px solid ${day.color}` : "3px solid transparent", padding: "12px 18px", cursor: "pointer", fontSize: 16, fontWeight: 700, marginBottom: -1, transition: "all 0.2s" }}>
+              {tab === "rehab" ? "🩺 Rehab" : "🏋️ Weights"}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: "20px 20px 0" }}>
+      <div style={{ padding: "18px 16px 0" }}>
         {activeTab === "rehab" ? (
           <div>
-            <Section label="WARM-UP" sublabel="2 rounds · alternating" color={day.color}>
+            <Section label="Warm-up" sublabel="2 rounds · alternating" color={day.color}>
               {day.rehab.warmup.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
             </Section>
             <Section label={day.rehab.triset.label} color={day.color}>
@@ -510,12 +518,12 @@ function WorkoutPlan() {
             <Section label={day.rehab.superset.label} color={day.color}>
               {day.rehab.superset.exercises.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
             </Section>
-            <Section label="COOL-DOWN" sublabel="static holds" color={day.color}>
+            <Section label="Cool-down" sublabel="static holds" color={day.color}>
               {day.rehab.cooldown.map((e, i) => <ExRow key={i} ex={e} open={openExercise} onToggle={toggleEx} color={day.color} />)}
             </Section>
-            <div style={{ marginTop: 20, padding: "12px 14px", background: "#161616", borderRadius: 6, display: "flex", gap: 20, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 12, color: "#888" }}>🔵 Shoulder rehab</span>
-              <span style={{ fontSize: 12, color: "#888" }}>🟠 Glute / coccyx rehab</span>
+            <div style={{ marginTop: 20, padding: "14px 16px", background: "#1A1A1A", borderRadius: 8, display: "flex", gap: 20, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 15, color: "#D5D5D5", fontWeight: 600 }}>🔵 Shoulder rehab</span>
+              <span style={{ fontSize: 15, color: "#D5D5D5", fontWeight: 600 }}>🟠 Glute / coccyx rehab</span>
             </div>
           </div>
         ) : (
@@ -523,41 +531,41 @@ function WorkoutPlan() {
             {day.weights.map((block, i) => (
               <WeightBlock key={i} block={block} color={day.color} open={openExercise} onToggle={toggleEx} />
             ))}
-            <div style={{ marginTop: 24, padding: "16px", background: "#1A0A0A", borderRadius: 8, border: "1px solid #3A1A1A" }}>
-              <div style={{ fontSize: 10, letterSpacing: 3, color: "#E8643A", marginBottom: 10, fontFamily: "monospace" }}>⚠ ALWAYS AVOID</div>
+            <div style={{ marginTop: 24, padding: "16px 18px", background: "#2A0F0F", borderRadius: 10, border: "2px solid #5A2222" }}>
+              <div style={{ fontSize: 16, color: "#FF8866", marginBottom: 12, fontWeight: 800 }}>⚠ Always avoid</div>
               {avoidList.map((item, i) => (
-                <div key={i} style={{ fontSize: 12, color: "#888", padding: "3px 0", borderBottom: i < avoidList.length - 1 ? "1px solid #1E1E1E" : "none" }}>— {item}</div>
+                <div key={i} style={{ fontSize: 15, color: "#E5E5E5", padding: "8px 0", borderBottom: i < avoidList.length - 1 ? "1px solid #3A1818" : "none", fontWeight: 500 }}>— {item}</div>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      <div style={{ padding: "32px 20px 0" }}>
-        <div style={{ fontSize: 10, letterSpacing: 3, color: "#444", marginBottom: 12, fontFamily: "monospace" }}>WEEKLY OVERVIEW</div>
-        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+      <div style={{ padding: "32px 16px 0" }}>
+        <div style={{ fontSize: 13, color: "#888", marginBottom: 10, fontWeight: 600 }}>WEEKLY OVERVIEW</div>
+        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
           {[
             { d: "MON", label: "Push", color: "#E8643A" },
             { d: "TUE", label: "Pull", color: "#4A90D9" },
-            { d: "WED", label: "REST", color: "#333" },
+            { d: "WED", label: "REST", color: "#444" },
             { d: "THU", label: "Posterior", color: "#5BB85D" },
             { d: "FRI", label: "Shoulders", color: "#9B59B6" },
             { d: "SAT", label: "Quads", color: "#E8A838" },
-            { d: "SUN", label: "REST", color: "#333" },
+            { d: "SUN", label: "REST", color: "#444" },
           ].map((w, i) => (
-            <div key={i} style={{ flex: 1, minWidth: 42, background: "#111", borderTop: `3px solid ${w.color}`, borderRadius: 4, padding: "8px 4px", textAlign: "center" }}>
-              <div style={{ fontSize: 9, letterSpacing: 1, color: "#666", fontFamily: "monospace" }}>{w.d}</div>
-              <div style={{ fontSize: 10, color: w.color, marginTop: 3, fontWeight: 600 }}>{w.label}</div>
+            <div key={i} style={{ flex: 1, minWidth: 44, background: "#161616", borderTop: `4px solid ${w.color}`, borderRadius: 4, padding: "8px 4px", textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "#999", fontWeight: 700 }}>{w.d}</div>
+              <div style={{ fontSize: 12, color: w.color, marginTop: 3, fontWeight: 700 }}>{w.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: "20px 20px 0" }}>
-        <div style={{ padding: "12px 14px", background: "#111", borderRadius: 6, border: "1px solid #222", fontSize: 11, color: "#666", lineHeight: 1.6 }}>
-          <strong style={{ color: "#888" }}>Rep target:</strong> 8–15 reps, 1–2 reps in reserve.<br />
-          <strong style={{ color: "#888" }}>Stop if:</strong> Sharp shoulder pain at a specific arc, leg numbness/tingling, or tailbone pain persisting 24h+ after a session.<br />
-          <strong style={{ color: "#888" }}>Side plank:</strong> Left side only until right shoulder is cleared by your surgeon.
+      <div style={{ padding: "20px 16px 0" }}>
+        <div style={{ padding: "16px 18px", background: "#161616", borderRadius: 10, border: "1px solid #2A2A2A", fontSize: 15, color: "#D5D5D5", lineHeight: 1.7 }}>
+          <strong style={{ color: "#FFF" }}>Rep target:</strong> 8–15 reps, 1–2 reps in reserve.<br />
+          <strong style={{ color: "#FFF" }}>Stop if:</strong> sharp shoulder pain at a specific arc, leg numbness/tingling, or tailbone pain persisting 24h+ after a session.<br />
+          <strong style={{ color: "#FFF" }}>Side plank:</strong> left side only until right shoulder is cleared by your surgeon.
         </div>
       </div>
     </div>
@@ -566,10 +574,10 @@ function WorkoutPlan() {
 
 function Section({ label, sublabel, color, children }) {
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid #1E1E1E" }}>
-        <span style={{ fontSize: 10, letterSpacing: 3, color, fontFamily: "monospace", fontWeight: 700 }}>{label}</span>
-        {sublabel && <span style={{ fontSize: 10, color: "#444", fontFamily: "monospace" }}>{sublabel}</span>}
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 8, paddingBottom: 8, borderBottom: `2px solid ${color}`, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 17, color, fontWeight: 800 }}>{label}</span>
+        {sublabel && <span style={{ fontSize: 14, color: "#999", fontWeight: 500 }}>{sublabel}</span>}
       </div>
       {children}
     </div>
@@ -580,17 +588,17 @@ function ExRow({ ex, open, onToggle, color }) {
   const info = EX[ex.name];
   const isOpen = open === ex.name;
   return (
-    <div style={{ borderBottom: "1px solid #161616" }}>
+    <div style={{ borderBottom: "1px solid #222" }}>
       <div onClick={() => info && onToggle(ex.name)}
-        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 0", cursor: info ? "pointer" : "default" }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-          <span style={{ fontSize: 14, marginTop: 1 }}>{ex.icon}</span>
-          <div>
-            <span style={{ fontSize: 13, color: isOpen ? color : "#DDD", transition: "color 0.2s" }}>{ex.name}</span>
-            {info && <span style={{ fontSize: 9, color: isOpen ? color : "#555", marginLeft: 8, fontFamily: "monospace" }}>{isOpen ? "▲" : "▼"}</span>}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "14px 4px", cursor: info ? "pointer" : "default", gap: 12, minHeight: 44 }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-start", flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 18, marginTop: 1, flexShrink: 0 }}>{ex.icon}</span>
+          <div style={{ minWidth: 0 }}>
+            <span style={{ fontSize: 17, color: isOpen ? color : "#FFF", fontWeight: 600, transition: "color 0.2s" }}>{ex.name}</span>
+            {info && <span style={{ fontSize: 13, color: isOpen ? color : "#888", marginLeft: 8, fontWeight: 700 }}>{isOpen ? "▲" : "▼"}</span>}
           </div>
         </div>
-        <span style={{ fontSize: 11, color: "#666", textAlign: "right", marginLeft: 12, fontFamily: "monospace", flexShrink: 0, paddingTop: 2 }}>{ex.detail}</span>
+        <span style={{ fontSize: 15, color: "#E0E0E0", textAlign: "right", flexShrink: 0, paddingTop: 2, fontWeight: 600 }}>{ex.detail}</span>
       </div>
       {isOpen && info && <InfoPanel info={info} color={color} />}
     </div>
@@ -599,29 +607,29 @@ function ExRow({ ex, open, onToggle, color }) {
 
 function WeightBlock({ block, color, open, onToggle }) {
   return (
-    <div style={{ marginBottom: 20, background: "#111", borderRadius: 8, overflow: "hidden", border: "1px solid #1E1E1E" }}>
-      <div style={{ padding: "10px 14px", background: "#161616", borderBottom: "1px solid #1E1E1E", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 10, letterSpacing: 3, color, fontFamily: "monospace", fontWeight: 700 }}>{block.type}</span>
-        <span style={{ fontSize: 10, color: "#444", fontFamily: "monospace" }}>{block.note}</span>
+    <div style={{ marginBottom: 20, background: "#161616", borderRadius: 10, overflow: "hidden", border: "1px solid #2A2A2A" }}>
+      <div style={{ padding: "12px 16px", background: "#1F1F1F", borderBottom: `2px solid ${color}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <span style={{ fontSize: 16, color, fontWeight: 800 }}>{block.type}</span>
+        <span style={{ fontSize: 14, color: "#BBB", fontWeight: 500 }}>{block.note}</span>
       </div>
       {block.exercises.map((ex, i) => {
         const info = EX[ex.name];
         const isOpen = open === ex.name;
         return (
-          <div key={i} style={{ borderBottom: i < block.exercises.length - 1 ? "1px solid #191919" : "none" }}>
+          <div key={i} style={{ borderBottom: i < block.exercises.length - 1 ? "1px solid #232323" : "none" }}>
             <div onClick={() => info && onToggle(ex.name)}
-              style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, cursor: info ? "pointer" : "default" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 14, color: isOpen ? color : "#EEE", transition: "color 0.2s" }}>{ex.name}</span>
-                  {info && <span style={{ fontSize: 9, color: isOpen ? color : "#555", fontFamily: "monospace" }}>{isOpen ? "▲" : "▼"}</span>}
+              style={{ padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14, cursor: info ? "pointer" : "default", minHeight: 44 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 18, color: isOpen ? color : "#FFF", fontWeight: 700, transition: "color 0.2s" }}>{ex.name}</span>
+                  {info && <span style={{ fontSize: 13, color: isOpen ? color : "#888", fontWeight: 700 }}>{isOpen ? "▲" : "▼"}</span>}
                 </div>
-                <div style={{ fontSize: 11, color: "#555", marginTop: 3 }}>{ex.note}</div>
+                <div style={{ fontSize: 14, color: "#AAA", marginTop: 5 }}>{ex.note}</div>
               </div>
-              <div style={{ fontSize: 12, color, fontFamily: "monospace", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>{ex.sets}</div>
+              <div style={{ fontSize: 20, color, fontWeight: 800, whiteSpace: "nowrap", flexShrink: 0 }}>{ex.sets}</div>
             </div>
             {isOpen && info && (
-              <div style={{ padding: "0 14px 4px" }}>
+              <div style={{ padding: "0 16px 6px" }}>
                 <InfoPanel info={info} color={color} />
               </div>
             )}
@@ -634,21 +642,21 @@ function WeightBlock({ block, color, open, onToggle }) {
 
 function InfoPanel({ info, color }) {
   return (
-    <div style={{ background: "#080808", borderLeft: `2px solid ${color}`, marginBottom: 10, padding: "14px 16px", borderRadius: "0 6px 6px 0" }}>
-      <InfoSect label="HOW TO" color={color}>
-        <p style={{ margin: 0, fontSize: 13, color: "#CCC", lineHeight: 1.65 }}>{info.howTo}</p>
+    <div style={{ background: "#0A0A0A", borderLeft: `4px solid ${color}`, marginBottom: 12, padding: "16px 18px", borderRadius: "0 8px 8px 0" }}>
+      <InfoSect label="How to" color={color}>
+        <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.6 }}>{info.howTo}</p>
       </InfoSect>
-      <InfoSect label="FEEL" color={color}>
-        <p style={{ margin: 0, fontSize: 13, color: "#CCC", lineHeight: 1.65 }}>{info.feel}</p>
+      <InfoSect label="Feel" color={color}>
+        <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.6 }}>{info.feel}</p>
       </InfoSect>
-      <InfoSect label="WHAT MOVES" color={color}>
-        <p style={{ margin: 0, fontSize: 13, color: "#CCC", lineHeight: 1.65 }}>{info.moves}</p>
+      <InfoSect label="What moves" color={color}>
+        <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.6 }}>{info.moves}</p>
       </InfoSect>
-      <InfoSect label="COMMON MISTAKES" color={color} last>
+      <InfoSect label="Common mistakes" color={color} last>
         {info.mistakes.map((m, i) => (
-          <div key={i} style={{ display: "flex", gap: 8, marginTop: i === 0 ? 0 : 8, alignItems: "flex-start" }}>
-            <span style={{ color: "#E8643A", fontSize: 11, marginTop: 2, flexShrink: 0 }}>⚠</span>
-            <span style={{ fontSize: 13, color: "#AAA", lineHeight: 1.55 }}>{m}</span>
+          <div key={i} style={{ display: "flex", gap: 10, marginTop: i === 0 ? 0 : 10, alignItems: "flex-start" }}>
+            <span style={{ color: "#FF8866", fontSize: 16, marginTop: 1, flexShrink: 0, fontWeight: 800 }}>⚠</span>
+            <span style={{ fontSize: 16, color: "#DADADA", lineHeight: 1.55 }}>{m}</span>
           </div>
         ))}
       </InfoSect>
@@ -658,8 +666,8 @@ function InfoPanel({ info, color }) {
 
 function InfoSect({ label, color, children, last }) {
   return (
-    <div style={{ marginBottom: last ? 0 : 16 }}>
-      <div style={{ fontSize: 9, letterSpacing: 3, color, fontFamily: "monospace", marginBottom: 7, opacity: 0.85 }}>{label}</div>
+    <div style={{ marginBottom: last ? 0 : 18 }}>
+      <div style={{ fontSize: 14, color, fontWeight: 800, marginBottom: 8 }}>{label}</div>
       {children}
     </div>
   );
