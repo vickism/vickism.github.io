@@ -17,8 +17,7 @@
   }
   #root { min-height: 100vh; }
   button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
-  /* big tap targets — for gym-no-glasses readability */
-  button, [role="button"] { min-height: 48px; }
+  button, [role="button"] { min-height: 44px; }
 </style>
 </head>
 <body>
@@ -29,11 +28,10 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel" data-presets="react">
-const { useState } = React;
+const { useState, useEffect, useMemo } = React;
 
 // ─── EXERCISE NOTES ──────────────────────────────────────────────────────
 const EX = {
-  // PRIMER (daily)
   "Wall Slide": {
     howTo: "Back against wall, feet 6\" out. Lower back, shoulders, elbows, wrists touching wall in a 'W'. Slide arms up toward 'Y' overhead while maintaining contact. Only go as high as you can keep contact.",
     feel: "Serratus and lower traps firing — primes the scapula for pressing.",
@@ -70,8 +68,6 @@ const EX = {
     moves: "Static stretch then gentle mobility. Deep breathing.",
     mistakes: ["Forcing the stretch", "Rolling the lumbar spine — thoracic only", "Holding breath"]
   },
-
-  // GLUTE WARMUP (lower days)
   "Cat-Cow": {
     howTo: "Hands and knees. Cat: exhale, round spine, tuck chin and tailbone. Cow: inhale, drop spine, lift head and tailbone. Breath drives movement.",
     feel: "Gentle wave through the entire spine.",
@@ -90,138 +86,131 @@ const EX = {
     moves: "Top leg abducts upward. Hips stay lifted, pelvis square.",
     mistakes: ["Hips dropping", "Pelvis rotating backward", "Hand instead of forearm — protects the shoulder"]
   },
-
-  // ─── A1 ANCHOR LIFTS ──────────────────────────────────────────────────
   "Trap-Bar Deadlift": {
     howTo: "Stand inside the trap bar, feet hip-width. Hinge at hips, grip handles (neutral grip). Brace core hard. Drive through full feet — hips and shoulders rise together. Lower under control.",
-    feel: "Glutes, hamstrings, quads, full posterior chain. Neutral grip + centered load reduces lumbar shear vs straight bar (Swinton JSCR 2011) — your primary heavy hinge, spine-sparing.",
+    feel: "Glutes, hamstrings, quads, full posterior chain. Neutral grip + centered load reduces lumbar shear vs straight bar — your primary heavy hinge, spine-sparing.",
     moves: "Hips and knees extend together. Spine stays neutral. Bar travels vertically.",
     mistakes: ["Rounding lower back — critical with disc bulge. Brace before each rep", "Hips shooting up first — extend together", "Arms pulling — they're just hooks", "Hyperextending at lockout"],
-    warmupSets: "After primer: empty bar × 5 → 50% × 5 → 70% × 3 → 85% × 2 → working sets. Use warm-ups as bracing practice.",
-    breathing: "Big breath INTO the belly before each rep, brace 360° (Valsalva). Hold through the lift, exhale at the top. Reset breath each rep — NO touch-and-go on heavy sets.",
-    sub: "No trap bar? → Heavy DB deadlift from standing on a low box (best alternative). Or 45° back extension as fallback. AVOID conventional straight-bar deadlift with your disc bulge.",
-    progression: "Hit the top of the rep range across all sets with RIR target met → add 2.5kg next session. Miss reps or form breaks → repeat the weight. Linear progression for ~3-6 months, then move to harder waves.",
-    tempo: "Control the eccentric (2-3 seconds down). Drive up with intent. Reset and re-brace EVERY rep.",
-    belt: "Optional. If using, only for working sets in W1/W2 (heaviest weeks). No belt in W4 deload — let core do the work."
+    breathing: "Big breath INTO belly, brace 360° (Valsalva). Hold through lift, exhale at top. Reset every rep — no touch-and-go.",
+    sub: "No trap bar? → Heavy DB deadlift from low box. Or 45° back extension as fallback. AVOID straight-bar deadlift with your disc bulge.",
+    progression: "Hit top of rep range × all sets at RIR target → +2.5kg next session. Miss reps or form breaks → repeat.",
+    tempo: "2–3s eccentric. Drive up with intent. Reset and re-brace EVERY rep.",
+    belt: "Optional. Working sets only in W1/W2. No belt in W4 deload."
   },
   "Front Squat": {
     howTo: "Bar across front delts and clavicles, fingers loose under bar (or cross-grip). Elbows HIGH, chest up. Brace core, descend with knees tracking over toes. Torso stays far more upright than back squat. Drive up through full foot.",
-    feel: "Quads working hard. Upright torso position dramatically reduces lumbar shear vs back squat — far safer for your disc.",
+    feel: "Quads working hard. Upright torso dramatically reduces lumbar shear vs back squat — far safer for your disc.",
     moves: "Hips and knees flex together. Torso vertical. Bar travels straight up/down.",
-    mistakes: ["Elbows dropping (bar rolls forward, chest collapses)", "Heels lifting", "Loading too heavy — front squat exposes weak core/upper back"],
-    warmupSets: "Empty bar × 8 → 50% × 5 → 70% × 3 → 85% × 2 → working sets. Mobilise wrists and thoracic spine BEFORE warmup sets if elbows want to drop.",
-    breathing: "Brace 360° before descent, hold to just past the sticking point, exhale on the way up. Critical for spine protection.",
-    sub: "Wrist/shoulder mobility issue? → Safety-bar squat (BEST alternative, often even better for disc). Hack squat = most disc-friendly fallback. Goblet squat for light/deload days.",
+    mistakes: ["Elbows dropping (bar rolls forward)", "Heels lifting", "Loading too heavy — front squat exposes weak core/upper back"],
+    breathing: "Brace 360° before descent, hold past sticking point, exhale on way up. Critical for spine.",
+    sub: "Wrist/shoulder mobility issue? → Safety-bar squat (BEST). Hack squat = most disc-friendly fallback.",
     progression: "Top of rep range × all sets at RIR target → +2.5kg next session.",
-    tempo: "2 seconds down with a brief pause at the bottom (no bounce — this protects your disc). Drive up with intent."
+    tempo: "2s down with brief pause at bottom (no bounce — protects disc). Drive up with intent."
   },
   "Incline DB Press (≤30°)": {
     howTo: "Bench at 30° MAX — not standard incline. Lie back, feet flat. DBs at chest, neutral or slightly inward grip. Press up in slight arc, lower slowly. The ≤30° cap keeps shoulder safe.",
     feel: "Lower and mid chest. Front delt assisting. Stretch at bottom.",
     moves: "Arms press up in slight inward arc. Shoulder blades retracted against bench.",
     mistakes: ["Bench too high — stay at ≤30°", "Bouncing DBs off chest", "Shoulder blades protracting at top"],
-    warmupSets: "After cuff primer: light DBs × 8 → working warmup × 5 → working sets. Don't skip the primer — it does most of the shoulder prep.",
-    sub: "Shoulder feels tight or cranky today? → Switch to landmine press (single-arm, even safer angle). Machine chest press is another good alternative.",
-    progression: "Hit top of rep range with RIR target → add 1-2kg per side next session. DB jumps can feel slow — that's normal.",
-    tempo: "2-3s eccentric, controlled. Brief pause at chest (no bouncing). Press up smoothly."
+    breathing: "Inhale on descent, exhale on press. Brace lightly throughout.",
+    sub: "Shoulder cranky? → Landmine press (safer angle). Machine chest press also good.",
+    progression: "Hit top of rep range with RIR target → +1–2kg per side next session.",
+    tempo: "2–3s eccentric. Brief pause at chest (no bouncing). Press up smoothly."
   },
   "Weighted Chin-Up": {
     howTo: "Use chin-up belt with plate, or DB between feet. Hang from bar with palms facing you. Pull chin over bar by driving elbows down. Lower in 2–3 seconds.",
     feel: "Lats, biceps, mid-back as a unit. Best vertical pull for strength.",
     moves: "Body pulls up to bar. Chin clears the bar.",
-    mistakes: ["Kipping — strict reps only", "Not full range — chin must fully clear bar", "Adding weight before mastering bodyweight"],
-    warmupSets: "1-2 sets of bodyweight chin-ups × 5-8 to warm up the pull pattern. Then add weight for working sets.",
-    sub: "Can't do bodyweight chin-ups yet? → Heavy lat pulldown 4 × 5-8 with neutral grip. Work toward bodyweight chin-up over weeks. Assisted pull-up machine is also valid.",
-    progression: "Two-step: first add 1 rep per set across the range. Once you hit top of range × all sets, add 2.5kg to the belt next session.",
-    tempo: "2-3s lowering. Dead hang at bottom (full straight arms) — sets up the next rep correctly."
+    mistakes: ["Kipping — strict reps only", "Not full range — chin must clear bar", "Adding weight before mastering bodyweight"],
+    sub: "Can't do bodyweight chin-ups yet? → Heavy lat pulldown 4 × 5–8 with neutral grip. Or assisted pull-up machine.",
+    progression: "Two-step: add 1 rep per set first. Top of range × all sets → +2.5kg to belt.",
+    tempo: "2–3s lowering. Dead hang at bottom (full straight arms)."
   },
-
-  // ─── A2 + ACCESSORY LIFTS ────────────────────────────────────────────
   "Bulgarian Split Squat (DBs)": {
-    howTo: "Stand in front of bench. Step one foot back onto bench top. Hold DBs at sides. Lower back knee toward floor, drive through front heel to stand. Slight forward lean is correct (increases glute activation).",
+    howTo: "Stand in front of bench. Step one foot back onto bench top. Hold DBs at sides. Lower back knee toward floor, drive through front heel to stand. Slight forward lean is correct.",
     feel: "Front glute and quad. Hip flexor stretch on back leg.",
     moves: "Front knee bends in controlled descent. Slight forward torso lean.",
     mistakes: ["Front foot too close to bench (knee tracks too far forward)", "Front knee caving inward", "Pushing off back foot — front leg does 100%"],
-    sub: "Bench unavailable? → Walking lunges or reverse lunges with DBs. Less hip flexor stretch but similar quad/glute load.",
-    progression: "Add 1 rep per leg first; once you hit top of range across all sets, add 2kg per DB.",
+    sub: "Bench unavailable? → Walking lunges or reverse lunges with DBs.",
+    progression: "Add 1 rep per leg first; top of range × all sets → +2kg per DB.",
     tempo: "2s down, brief pause at bottom, drive up. Don't bounce."
   },
   "Barbell Hip Thrust": {
     howTo: "Upper back against bench. Padded bar across hips. Feet flat, hip-width. Drive through heels, extend hips, squeeze glutes hard at top. Lower slowly.",
-    feel: "Glute max maxing out. Lower back stays NEUTRAL at the top.",
+    feel: "Glute max maxing out. Lower back stays NEUTRAL at top.",
     moves: "Hips extend and rise. Upper back pivots on bench.",
     mistakes: ["Hyperextending lower back — keep RIBS DOWN", "Pushing through toes", "Chin jutting up", "Not reaching full hip extension"],
-    sub: "No padded bar / hip thrust setup? → Single-leg hip thrust with bodyweight (harder than it sounds), or machine hip thrust if your gym has one.",
-    progression: "Hip thrust progresses faster than most lifts — add 5kg/session when you hit top of range. Easy lift to overload safely.",
-    equipment: "Use a barbell pad (or thick towel wrapped around bar). Direct bar pressure on hips is painful — don't tough it out."
+    sub: "No padded bar? → Single-leg hip thrust bodyweight, or machine hip thrust.",
+    progression: "+5kg/session when you hit top of range. Easy lift to overload safely.",
+    equipment: "Use a barbell pad. Direct bar pressure on hips is painful — don't tough it out."
   },
   "Single-Leg RDL": {
     howTo: "Stand on one leg, soft knee bend. DB in opposite hand. Hinge at hip with flat back, free leg extends behind as counterbalance. Lower until hamstring stretches. Drive through standing heel to return.",
     feel: "Standing-leg hamstring stretching. Standing glute firing. Hip stabilisers keeping pelvis level.",
-    moves: "Hip hinges. Spine stays neutral. Pelvis stays square (hip points level).",
-    mistakes: ["Rounding lower back — reduce range if needed", "Pelvis rotating open", "Bending standing knee too much (becomes a squat)"],
-    sub: "Balance not there yet? → Hold a pole or rack with the free hand for stability while you master the hinge. Or do regular RDL.",
-    progression: "Stability first, load second. Master 3 × 10 unsupported before adding load. Then small DB jumps."
+    moves: "Hip hinges. Spine stays neutral. Pelvis stays square.",
+    mistakes: ["Rounding lower back — reduce range", "Pelvis rotating open", "Bending standing knee too much"],
+    sub: "Balance not there? → Hold a pole/rack with free hand. Or regular RDL.",
+    progression: "Stability first, load second. Master 3 × 10 unsupported before adding load."
   },
   "Romanian Deadlift": {
-    howTo: "Stand with barbell at thighs. Soft knee bend. Hinge at hips, slide weight down thighs with flat back. Lower until hamstring stretches (mid-shin). Drive through heels, squeeze glutes to return. Spine neutral throughout.",
+    howTo: "Stand with barbell at thighs. Soft knee bend. Hinge at hips, slide weight down thighs with flat back. Lower until hamstring stretches (mid-shin). Drive through heels, squeeze glutes. Spine neutral throughout.",
     feel: "Posterior chain stretching and contracting — hamstrings, glutes, lower back as a unit. NOT a stretch in the lower back.",
     moves: "Hips hinge backward. Spine neutral. Bar travels close to body.",
-    mistakes: ["Rounding lower back — reduce range immediately", "Bending too much at knees (becomes a squat)", "Bar drifting away from body"],
-    sub: "Lower back feels off? → DB RDL (lighter axial load) or single-leg RDL. Avoid heavy barbell RDL on flare days.",
-    progression: "Add 2.5kg when top of range × all sets met. Range of motion matters more than weight — don't sacrifice form for load.",
-    tempo: "3-second eccentric (the slow lowering is where the hamstring strength is built). Controlled return."
+    mistakes: ["Rounding lower back — reduce range immediately", "Bending too much at knees", "Bar drifting away from body"],
+    sub: "Lower back off? → DB RDL or single-leg RDL. Avoid heavy barbell RDL on flare days.",
+    progression: "+2.5kg when top of range × all sets met. ROM matters more than weight.",
+    tempo: "3s eccentric (where hamstring strength is built). Controlled return."
   },
   "Walking DB Lunges": {
     howTo: "DBs at sides. Step forward into lunge, lower back knee toward floor, drive off front foot, step into next lunge. Torso upright.",
     feel: "Front quad and glute. Core stabilising each step.",
     moves: "Alternating legs stepping forward. Torso tall.",
-    mistakes: ["Front knee caving inward", "Torso leaning too far forward", "Front foot landing too close", "Steps too short"],
+    mistakes: ["Front knee caving inward", "Torso leaning too far forward", "Front foot landing too close"],
     sub: "Limited space? → Reverse lunges in place, or stationary split squats.",
-    progression: "Add reps before adding weight. 10/leg → 12/leg → then add 2kg per DB."
+    progression: "Add reps before adding weight. 10/leg → 12/leg → +2kg per DB."
   },
   "Copenhagen Plank": {
     howTo: "Lie on left side. Top (right) leg on a bench — bench supports inner knee or ankle. Prop up on left forearm in side plank. Bottom leg hovers or rests lightly. Hold.",
     feel: "Top adductor working intensely. Side plank obliques and glute med bracing.",
     moves: "Static isometric hold. Hips lifted, body straight.",
-    mistakes: ["Hips sagging", "Hand instead of forearm", "Lever too long — start with bench under the knee, progress to ankle"],
-    progression: "Knee on bench (easier) → shin on bench → ankle on bench (full lever, hardest). Build up 5s/week."
+    mistakes: ["Hips sagging", "Hand instead of forearm", "Lever too long — start with bench under knee"],
+    progression: "Knee on bench → shin on bench → ankle on bench. Build up 5s/week."
   },
   "Standing Calf Raise": {
     howTo: "Balls of feet on elevated surface, heels hanging off. Rise high, pause, lower heels as far below the step as possible. 2s up, 2s down.",
     feel: "Gastroc through full range. Deep stretch at bottom is critical.",
     moves: "Ankle plantar/dorsiflexes through full range.",
     mistakes: ["Bouncing at bottom", "Partial range", "Not pausing at top"],
-    progression: "Hit top of range × all sets → add weight. Calves respond to volume — don't be shy with reps."
+    progression: "Hit top of range × all sets → add weight."
   },
   "Lying Leg Curl": {
     howTo: "Face-down on machine. Pad just above heels. Curl heels toward glutes, pause, lower under control. Face-down — NOT seated.",
     feel: "Hamstrings through full range. Stretch at extension.",
     moves: "Knees flex. Hips stay flat on the pad.",
     mistakes: ["Hips lifting off pad — lower back compensating (dangerous with disc)", "Too heavy and losing range", "Releasing quickly"],
-    sub: "No lying leg curl machine? → Nordic hamstring curl with feet anchored (much harder, lower reps).",
+    sub: "No lying leg curl machine? → Nordic hamstring curl (much harder).",
     tempo: "Slow eccentric (3s) — hamstring growth is heavily eccentric-driven."
   },
   "Banded Side-Lying Abduction": {
     howTo: "Lie on left side, band looped above knees. Stack hips. Bottom leg slightly bent. Lift top leg straight up against band (about 30°), control down. Switch sides.",
     feel: "Outer glute burning. Band turns this into a strength stimulus.",
     moves: "Top leg abducts straight up. Pelvis stays absolutely still.",
-    mistakes: ["Pelvis rolling backward to cheat range", "Top leg drifting forward (becomes hip flexion)", "Rushing eccentric"]
+    mistakes: ["Pelvis rolling backward to cheat range", "Top leg drifting forward", "Rushing eccentric"]
   },
   "Chest-Supported DB Row": {
-    howTo: "Bench at ~30°, lie chest-down. Pull DBs up by driving elbows back toward HIPS (not chest). Squeeze shoulder blades, lower slowly. Chest stays on bench throughout.",
-    feel: "Mid-back and lats contracting. Bench eliminates all lower back stress.",
+    howTo: "Bench at ~30°, lie chest-down. Pull DBs up by driving elbows back toward HIPS (not chest). Squeeze shoulder blades, lower slowly. Chest stays on bench.",
+    feel: "Mid-back and lats contracting. Bench eliminates lower back stress.",
     moves: "Elbows drive back toward hips. Shoulder blades retract. Torso still.",
-    mistakes: ["Shrugging to ears", "Lower back peeling off bench", "Rowing to chest (shifts to rear delts) — row to hips for lats"],
-    sub: "No incline bench available? → Chest-supported T-bar row, or machine row with chest pad. AVOID standing barbell row with your disc.",
-    progression: "Add 2kg per DB when top of range × all sets hit."
+    mistakes: ["Shrugging to ears", "Lower back peeling off bench", "Rowing to chest — row to hips for lats"],
+    sub: "No incline bench? → Chest-supported T-bar row, or machine row with chest pad.",
+    progression: "+2kg per DB when top of range × all sets hit."
   },
   "Cable Lateral Raise": {
-    howTo: "Stand side-on to low cable, handle in far hand. Lean slightly away. Raise to shoulder height in SCAPULAR PLANE — thumb up, arm 30° in front of body, NOT straight to side. Lower with control.",
+    howTo: "Stand side-on to low cable, handle in far hand. Lean slightly away. Raise to shoulder height in SCAPULAR PLANE — thumb up, arm 30° in front of body. Lower with control.",
     feel: "Lateral delt with constant tension. Scapular plane keeps shoulder safe.",
     moves: "Arm raises in scapular plane (30° forward of side). Torso still.",
-    mistakes: ["Raising straight to side (frontal plane) — increases impingement risk", "Shrugging up", "Going above shoulder height"],
-    sub: "Cable busy? → DB scaption raise (thumbs up, arms 30° in front) — same scapular plane principle."
+    mistakes: ["Raising straight to side — increases impingement risk", "Shrugging up", "Going above shoulder height"],
+    sub: "Cable busy? → DB scaption raise (thumbs up, arms 30° in front)."
   },
   "Cable Triceps Pushdown (rope)": {
     howTo: "Cable high, rope. Face machine, elbows pinned at sides. Push down and slightly apart at bottom until fully extended. Control return.",
@@ -243,25 +232,25 @@ const EX = {
   },
   "Lat Pulldown (neutral grip)": {
     howTo: "Neutral-grip handle (palms facing each other). Sit at machine with coccyx cushion. Pull to collarbone by driving elbows down and back. Control return.",
-    feel: "Lats contracting. Stretch at top. Neutral grip is shoulder-friendly.",
+    feel: "Lats contracting. Stretch at top.",
     moves: "Elbows drive down and behind. Slight backward lean (10–15°) is fine.",
-    mistakes: ["Pulling with biceps — think 'elbows to ribs'", "Excessive backward lean (becomes a row)", "Not reaching full stretch at top"],
-    sub: "Used as substitute for Weighted Chin-Up when can't do bodyweight reps."
+    mistakes: ["Pulling with biceps — think 'elbows to ribs'", "Excessive backward lean", "Not reaching full stretch at top"],
+    sub: "Used as substitute for Weighted Chin-Up when needed."
   },
   "Landmine Press": {
     howTo: "Standing or half-kneeling. Hold end of landmine barbell in one hand at shoulder height. Press forward and slightly upward in diagonal arc. Torso upright. The diagonal path keeps the shoulder out of the impingement zone.",
-    feel: "Front and lateral delt working without overhead impingement risk.",
+    feel: "Front and lateral delt without overhead impingement risk.",
     moves: "Arm presses forward-upward diagonally. Torso upright.",
-    mistakes: ["Bar travelling too vertical/overhead — defeats safety purpose", "Leaning torso back to push more weight", "Same arm as kneeling knee — use opposite"],
-    sub: "No landmine attachment? → Wedge a barbell into a corner with a towel for protection. Or use half-kneeling DB press with NEUTRAL grip.",
-    progression: "Small jumps — landmine loads are awkward to adjust. Add reps first, then load."
+    mistakes: ["Bar travelling too vertical — defeats safety purpose", "Leaning torso back", "Same arm as kneeling knee — use opposite"],
+    sub: "No landmine? → Wedge barbell into corner. Or half-kneeling DB press with NEUTRAL grip.",
+    progression: "Small jumps — landmine loads are awkward to adjust. Add reps first."
   },
   "Seated Cable Row (neutral grip)": {
     howTo: "Sit at cable row (coccyx cushion). Feet braced. Neutral-grip handle. Sit tall, brace core, pull to lower ribs by driving elbows back. Squeeze shoulder blades. Control return.",
-    feel: "Mid-back, lats, rear delts. Strong squeeze at end of row.",
+    feel: "Mid-back, lats, rear delts.",
     moves: "Elbows drive straight back. Torso upright — minimal lean. Scapulae retract.",
     mistakes: ["Rounding lower back at start", "Excessive torso swing", "Pulling to chest instead of lower ribs"],
-    equipment: "USE A COCCYX CUSHION on the seat. The hard pad is the worst kind of surface for your tailbone."
+    equipment: "USE A COCCYX CUSHION on the seat. Worst surface for your tailbone otherwise."
   },
   "Hammer Curl": {
     howTo: "Standing, DBs at sides, palms in (neutral). Curl up keeping wrist neutral. Lower fully.",
@@ -273,16 +262,14 @@ const EX = {
     howTo: "Cable at head height. Slight forward lean. With slight elbow bend, sweep arm back in horizontal arc. Squeeze rear delt. Return slowly.",
     feel: "Posterior delt burning. Shoulders down — NOT traps.",
     moves: "Arm sweeps back horizontally. Elbow stays slightly bent.",
-    mistakes: ["Bending elbows too much (becomes a row)", "Shrugging", "Too heavy (traps override)"]
+    mistakes: ["Bending elbows too much", "Shrugging", "Too heavy (traps override)"]
   },
   "Overhead Cable Triceps Extension": {
     howTo: "Cable at lowest point, rope. Face away. Hold rope behind head, elbows forward and slightly up, slight forward lean. Extend elbows overhead, return slowly.",
-    feel: "Triceps long head stretching at bottom, contracting at top. Critical for long-head growth.",
+    feel: "Triceps long head stretching at bottom, contracting at top.",
     moves: "Only forearms extend. Upper arms fixed forward-and-up.",
     mistakes: ["Elbows flaring out — keep forward", "Too heavy", "Excessive lower back arch"]
   },
-
-  // HIP CIRCUIT
   "Clamshell": {
     howTo: "Side-lying, hips stacked, knees bent to 45°. Feet together. Rotate top knee open without rolling pelvis back. Band above knees for more challenge.",
     feel: "Outer glute firing. Pelvis still.",
@@ -291,26 +278,50 @@ const EX = {
   },
   "Glute Bridge (banded)": {
     howTo: "Band above knees. Lie on back, knees bent, feet hip-width. Drive through heels, push knees out against band, squeeze glutes, lift hips to straight line. Hold 2s. Lower slowly.",
-    feel: "Glutes firing. Outer glutes activated by the band push-out. Ribs DOWN.",
+    feel: "Glutes firing. Outer glutes activated by band push-out. Ribs DOWN.",
     moves: "Hips drive up. Knees push out against band the whole time.",
     mistakes: ["Pushing through toes", "Hyperextending lower back", "Letting knees collapse inward"]
   },
   "Hip Hike": {
     howTo: "Stand on one foot on a step, other leg dangling off. Drop dangling-side hip toward the floor, then lift it up by contracting standing-leg glute medius.",
-    feel: "Standing-leg glute med firing strongly. Pelvic stabiliser at work.",
+    feel: "Standing-leg glute med firing strongly.",
     moves: "Pelvis tilts at the hip joint. Standing leg straight.",
     mistakes: ["Bending standing knee", "Using lower back instead of glute med", "Rushing"]
   },
 };
 
+// ─── WARM-UP RAMPS (structured for run-sheet) ───────────────────────────
+const WARMUP_RAMPS = {
+  "Trap-Bar Deadlift": [
+    { weight: "Empty bar", reps: "5", note: "Bracing practice" },
+    { weight: "50%", reps: "5" },
+    { weight: "70%", reps: "3" },
+    { weight: "85%", reps: "2" },
+  ],
+  "Front Squat": [
+    { weight: "Empty bar", reps: "8", note: "Mobilise wrists + T-spine first" },
+    { weight: "50%", reps: "5" },
+    { weight: "70%", reps: "3" },
+    { weight: "85%", reps: "2" },
+  ],
+  "Incline DB Press (≤30°)": [
+    { weight: "Light DBs", reps: "8", note: "After cuff primer" },
+    { weight: "Working warmup", reps: "5", note: "Slightly under working weight" },
+  ],
+  "Weighted Chin-Up": [
+    { weight: "Bodyweight", reps: "5–8", note: "Warm the pull pattern" },
+    { weight: "Bodyweight", reps: "5–8", note: "Then add weight for working sets" },
+  ],
+};
+
 // ─── MESOCYCLE WAVE ─────────────────────────────────────────────────────
 const weeks = [
   { id: 1, label: "W1", name: "Heavy", emoji: "🔥", color: "#FF7A4D",
-    detail: "Intensification · A1: 4 sets × 3–5 reps · RIR 2–4" },
+    detail: "Intensification · A1: 4 × 3–5 reps · RIR 2–4" },
   { id: 2, label: "W2", name: "Hypertrophy", emoji: "💪", color: "#5BA8F0",
-    detail: "Moderate · A1: 4 sets × 6–8 reps · RIR 2–3" },
+    detail: "Moderate · A1: 4 × 6–8 reps · RIR 2–3" },
   { id: 3, label: "W3", name: "Peak Volume", emoji: "📈", color: "#B870D0",
-    detail: "Volume · A1: 3 sets × 8–12 reps · RIR 1–2" },
+    detail: "Volume · A1: 3 × 8–12 reps · RIR 1–2" },
   { id: 4, label: "W4", name: "Deload", emoji: "🛌", color: "#999",
     detail: "Deload · All sets −40% · RIR 4 throughout" },
 ];
@@ -324,7 +335,6 @@ const A1_REPS_BY_WEEK = { 1: "3–5", 2: "6–8", 3: "8–12", 4: "3–5" };
 const A1_SETS_BY_WEEK = { 1: 4, 2: 4, 3: 3, 4: 2 };
 const A1_RIR_BY_WEEK  = { 1: "2–4", 2: "2–3", 3: "1–2", 4: "4 (deload)" };
 
-// ─── DAILY PRIMER (same every session) ──────────────────────────────────
 const PRIMER = [
   { name: "Wall Slide", detail: "2 × 10 reps" },
   { name: "Band ER at 0°", detail: "2 × 12 / side" },
@@ -334,7 +344,6 @@ const PRIMER = [
   { name: "Pec & Thoracic Mobility", detail: "~90s" },
 ];
 
-// ─── DAYS ─────────────────────────────────────────────────────────────────
 const days = [
   {
     id: "lower-a", label: "LOWER A", focus: "Hinge Focus", color: "#6FD071",
@@ -349,12 +358,12 @@ const days = [
         exercises: [{ name: "Trap-Bar Deadlift", anchor: true, isA1: true, note: "Spine-sparing primary lift" }] },
       { type: "A2", label: "MODERATE", rest: "90s", baseSets: 3, baseReps: "8 / leg", baseRIR: "1–2",
         exercises: [{ name: "Bulgarian Split Squat (DBs)", note: "Slight forward lean" }] },
-      { type: "B", label: "SUPERSET", rest: "60–90s · 3 rounds", baseSets: 3, baseReps: "10", baseRIR: "1–2",
+      { type: "B", label: "SUPERSET", rest: "60–90s between rounds", baseSets: 3, baseReps: "10", baseRIR: "1–2", isSuperset: true,
         exercises: [
           { name: "Barbell Hip Thrust", reps: "10", note: "Ribs DOWN at top" },
           { name: "Single-Leg RDL", reps: "8 / leg", note: "Spine neutral, light DB" },
         ]},
-      { type: "C", label: "FINISHER", rest: "60s · 2 rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1",
+      { type: "C", label: "FINISHER", rest: "60s between rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1", isSuperset: true,
         exercises: [
           { name: "Copenhagen Plank", reps: "20s / side", note: "Top leg on bench" },
           { name: "Standing Calf Raise", reps: "15", note: "Full range, slow" },
@@ -369,12 +378,12 @@ const days = [
         exercises: [{ name: "Incline DB Press (≤30°)", anchor: true, isA1: true, note: "Neutral grip, no arch" }] },
       { type: "A2", label: "MODERATE", rest: "90s", baseSets: 3, baseReps: "8", baseRIR: "1–2",
         exercises: [{ name: "Chest-Supported DB Row", note: "Drive elbows to hips" }] },
-      { type: "B", label: "SUPERSET", rest: "60–90s · 3 rounds", baseSets: 3, baseReps: "12", baseRIR: "0–2",
+      { type: "B", label: "SUPERSET", rest: "60–90s between rounds", baseSets: 3, baseReps: "12", baseRIR: "0–2", isSuperset: true,
         exercises: [
           { name: "Cable Lateral Raise", reps: "12", note: "Scapular plane, thumbs up" },
           { name: "Cable Triceps Pushdown (rope)", reps: "12", note: "Elbows pinned" },
         ]},
-      { type: "C", label: "FINISHER", rest: "60s · 2 rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1",
+      { type: "C", label: "FINISHER", rest: "60s between rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1", isSuperset: true,
         exercises: [
           { name: "Cable Face Pull", reps: "15", note: "Elbows HIGH" },
           { name: "DB Curl", reps: "12", note: "Strict, no swing" },
@@ -394,12 +403,12 @@ const days = [
         exercises: [{ name: "Front Squat", anchor: true, isA1: true, note: "Upright torso — disc-friendly" }] },
       { type: "A2", label: "MODERATE", rest: "90s", baseSets: 3, baseReps: "8", baseRIR: "1–2",
         exercises: [{ name: "Romanian Deadlift", note: "Spine neutral, moderate load" }] },
-      { type: "B", label: "SUPERSET", rest: "60–90s · 3 rounds", baseSets: 3, baseReps: "varies", baseRIR: "1–2",
+      { type: "B", label: "SUPERSET", rest: "60–90s between rounds", baseSets: 3, baseReps: "varies", baseRIR: "1–2", isSuperset: true,
         exercises: [
           { name: "Walking DB Lunges", reps: "10 / leg", note: "Upright torso" },
           { name: "Lying Leg Curl", reps: "12", note: "Face-down — not seated" },
         ]},
-      { type: "C", label: "FINISHER", rest: "60s · 2 rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1",
+      { type: "C", label: "FINISHER", rest: "60s between rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1", isSuperset: true,
         exercises: [
           { name: "Banded Side-Lying Abduction", reps: "15 / side", note: "Pelvis still" },
           { name: "Standing Calf Raise", reps: "15", note: "Full range" },
@@ -414,12 +423,12 @@ const days = [
         exercises: [{ name: "Weighted Chin-Up", anchor: true, isA1: true, note: "Or Lat Pulldown if needed" }] },
       { type: "A2", label: "MODERATE", rest: "90s", baseSets: 3, baseReps: "8", baseRIR: "1–2",
         exercises: [{ name: "Landmine Press", note: "Half-kneeling, diagonal arc" }] },
-      { type: "B", label: "SUPERSET", rest: "60–90s · 3 rounds", baseSets: 3, baseReps: "10", baseRIR: "0–2",
+      { type: "B", label: "SUPERSET", rest: "60–90s between rounds", baseSets: 3, baseReps: "10", baseRIR: "0–2", isSuperset: true,
         exercises: [
           { name: "Seated Cable Row (neutral grip)", reps: "10", note: "Use coccyx cushion" },
           { name: "Hammer Curl", reps: "10", note: "Wrist neutral" },
         ]},
-      { type: "C", label: "FINISHER", rest: "60s · 2 rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1",
+      { type: "C", label: "FINISHER", rest: "60s between rounds", baseSets: 2, baseReps: "varies", baseRIR: "0–1", isSuperset: true,
         exercises: [
           { name: "Cable Rear-Delt Fly", reps: "15", note: "Shoulders down" },
           { name: "Overhead Cable Triceps Extension", reps: "12", note: "Long-head emphasis" },
@@ -431,7 +440,7 @@ const days = [
     color: "#AAA", schedule: "Wed / Sat", duration: "8–12 min", anchor: null, isOptional: true,
     blocks: [
       { type: "CIRCUIT", label: "2 ROUNDS · 30s rest between exercises",
-        rest: "Move continuously through all 5",
+        rest: "Move continuously through all 5", baseSets: 2, baseReps: "varies", baseRIR: "0–1", isSuperset: true,
         exercises: [
           { name: "Banded Lateral Walk", reps: "10 / direction" },
           { name: "Clamshell", reps: "15 / side" },
@@ -443,80 +452,70 @@ const days = [
   },
 ];
 
-// ─── PROGRAM GUIDE CONTENT ──────────────────────────────────────────────
 const guideContent = [
   {
     title: "📋 How to Read the Prescription",
     items: [
-      { label: "SETS × REPS", text: "Number of working sets × target rep range. Pick a weight that lets you finish all sets in the rep range with the RIR target. Adjust weight if you're outside the range." },
-      { label: "RIR (Reps In Reserve)", text: "How many reps you could still do at end of set. RIR 2 = stop with 2 reps left in the tank. Lower RIR = harder set. Compounds: 2-3 RIR. Isolation: 0-1 RIR." },
-      { label: "REST", text: "Rest period BETWEEN sets. Heavy compounds (A1): 2-3 min. Moderate (A2): 90s. Supersets/finishers: 60-90s." },
-      { label: "⭐ ANCHOR", text: "The single most important lift of the day. Don't skip, don't rush, don't substitute lightly." },
+      { label: "SETS × REPS", text: "Number of working sets × target rep range. Pick a weight that lets you finish all sets in the rep range with the RIR target." },
+      { label: "RIR", text: "Reps In Reserve — how many reps you could still do at end of set. RIR 2 = stop with 2 reps left." },
+      { label: "REST", text: "Heavy compounds (A1): 2–3 min. Moderate (A2): 90s. Supersets/finishers: 60–90s." },
+      { label: "⭐ ANCHOR", text: "The single most important lift of the day. Don't skip, don't substitute lightly." },
     ]
   },
   {
     title: "🔥 General Warm-Up (BEFORE primer)",
     items: [
-      { label: "3-5 minutes", text: "Easy cardio (bike, walk, rower) to get blood flowing and core temperature up. Just enough to break a light sweat." },
-      { label: "Why", text: "The cuff primer warms up the shoulder, but doesn't warm up the whole body. Cold lifts = injury risk. Don't skip." },
-      { label: "Cold day extra", text: "On cold mornings or first session of the week, add 2 more minutes." },
-    ]
-  },
-  {
-    title: "🏋️ Warm-Up Sets (for heavy A1 lifts)",
-    items: [
-      { label: "The protocol", text: "Empty bar × 5 → 50% × 5 → 70% × 3 → 85% × 2 → working sets. These count as PRACTICE, not work. Use them to rehearse bracing, breathing, bar path." },
-      { label: "DB lifts", text: "Light DBs × 8 → working warmup × 5 → working sets. Less ramp needed than barbell." },
-      { label: "Don't skip", text: "Heavy sets without warmup = poor performance + injury risk. The 5 minutes is non-negotiable." },
+      { label: "3–5 minutes", text: "Easy cardio (bike, walk, rower) to break a light sweat." },
+      { label: "Why", text: "The cuff primer warms the shoulder, not the whole body. Cold lifts = injury risk." },
     ]
   },
   {
     title: "📈 Progression Rules",
     items: [
-      { label: "Double progression", text: "Hit the TOP of the rep range across ALL working sets with RIR target met → add weight next session. Miss reps or form breaks → repeat the weight." },
-      { label: "Weight jumps", text: "Compound barbell: +2.5kg. DBs: +1-2kg per side. Hip thrust: +5kg (progresses fast). Chin-up: add 1 rep first, then +2.5kg to belt." },
-      { label: "Stuck for 3 sessions?", text: "Deload or change exercise. Don't grind a plateau — it costs more than it gains." },
+      { label: "Double progression", text: "Hit the TOP of the rep range across ALL working sets with RIR target met → add weight next session. Miss reps or form breaks → repeat." },
+      { label: "Weight jumps", text: "Compound barbell: +2.5kg. DBs: +1–2kg per side. Hip thrust: +5kg. Chin-up: add 1 rep first, then +2.5kg to belt." },
+      { label: "Stuck for 3 sessions?", text: "Deload or change exercise. Don't grind a plateau." },
     ]
   },
   {
     title: "🌡️ Symptom Monitoring (The 24h Rule)",
     items: [
-      { label: "OK", text: "Muscle soreness 24-48h after — that's training. Mild joint stiffness fading by next session — fine." },
-      { label: "PAUSE", text: "Sharp shoulder pain at a specific arc. Tailbone pain persisting 24h+. Lower back pain that gets WORSE the next day." },
-      { label: "STOP NOW", text: "Leg numbness or tingling (possible nerve root). Loss of strength/sensation. Acute sharp back pain on a lift. These need a physio visit, not a workout." },
+      { label: "OK", text: "Muscle soreness 24–48h after. Mild joint stiffness fading by next session." },
+      { label: "PAUSE", text: "Sharp shoulder pain at a specific arc. Tailbone pain 24h+. Lower back pain that gets WORSE the next day." },
+      { label: "STOP NOW", text: "Leg numbness or tingling. Loss of strength/sensation. Acute sharp back pain on a lift. Physio visit, not a workout." },
     ]
   },
   {
     title: "📅 When to Deload (beyond W4)",
     items: [
-      { label: "Trigger an early deload if:", text: "3+ sessions where you can't hit prescribed reps/RIR. Persistent sleep < 6h for a week. Acute life stress (work crunch, illness, family). Joint pain accumulating across sessions." },
-      { label: "What a deload looks like", text: "Same exercises, ~60% the sets, RIR 4 throughout. NOT a week off — active recovery beats rest for chronic load management." },
+      { label: "Trigger early deload if", text: "3+ sessions can't hit prescribed reps/RIR. Persistent sleep < 6h for a week. Acute life stress. Joint pain accumulating." },
+      { label: "What it looks like", text: "Same exercises, ~60% the sets, RIR 4 throughout. NOT a week off — active recovery beats rest." },
     ]
   },
   {
     title: "💼 Belt & Equipment",
     items: [
-      { label: "Lifting belt", text: "Optional for heavy A1 lifts (trap-bar deadlift, front squat) in W1 and W2. Provides cue to brace into. Don't wear in W4 deload — let your core do the work." },
-      { label: "Wrist wraps", text: "Useful for heavy front squat if wrist mobility is the bottleneck. Optional." },
-      { label: "Coccyx cushion", text: "Use on any seated machine (lat pulldown, seated row, leg extension). Carry one in your gym bag. Wedge or U-shaped, foam." },
-      { label: "Chin-up belt", text: "Once you can do 6-8 strict bodyweight chin-ups, get a dipping belt for weighted progression." },
+      { label: "Lifting belt", text: "Optional for heavy A1 lifts in W1 and W2. Don't wear in W4 deload — let core do the work." },
+      { label: "Wrist wraps", text: "Useful for heavy front squat if wrist mobility is the bottleneck." },
+      { label: "Coccyx cushion", text: "Use on any seated machine (lat pulldown, seated row). Carry one in your gym bag." },
+      { label: "Chin-up belt", text: "Once you can do 6–8 strict bodyweight chin-ups, get a dipping belt for weighted progression." },
     ]
   },
   {
     title: "🫁 Breathing & Bracing",
     items: [
-      { label: "Heavy compounds (A1)", text: "Big breath INTO the belly before each rep (not chest). Brace 360° (Valsalva — like preparing to be punched). Hold through the lift, exhale at the top. Reset each rep." },
-      { label: "Moderate compounds (A2)", text: "Same brace pattern but slightly lighter. Exhale on exertion is acceptable on lighter loads." },
-      { label: "Isolation", text: "Just breathe normally — exhale on the contraction, inhale on the eccentric." },
+      { label: "Heavy compounds", text: "Big breath INTO the belly. Brace 360° (Valsalva). Hold through the lift, exhale at top. Reset each rep." },
+      { label: "Moderate compounds", text: "Same brace pattern but slightly lighter. Exhale on exertion is acceptable on lighter loads." },
+      { label: "Isolation", text: "Breathe normally — exhale on contraction, inhale on eccentric." },
     ]
   },
   {
-    title: "🛌 Recovery Fundamentals (the boring critical stuff)",
+    title: "🛌 Recovery Fundamentals",
     items: [
-      { label: "Sleep", text: "7-9 hours. The single biggest variable for training response and joint health. Non-negotiable." },
-      { label: "Protein", text: "~1.6-2.2g/kg bodyweight per day. For an 80kg lifter: 130-175g daily. Spread across 3-4 meals." },
-      { label: "Walk daily", text: "20-30 min of low-load walking improves disc nutrition (the disc has no blood supply — it gets nutrients via movement)." },
-      { label: "Creatine", text: "5g/day. Strongest evidence base of any legal supplement for strength and hypertrophy. Take it any time of day." },
+      { label: "Sleep", text: "7–9 hours. The single biggest variable for training response and joint health." },
+      { label: "Protein", text: "~1.6–2.2g/kg bodyweight per day. For an 80kg lifter: 130–175g daily." },
+      { label: "Walk daily", text: "20–30 min low-load walking improves disc nutrition (disc has no blood supply)." },
+      { label: "Creatine", text: "5g/day. Strongest evidence base of any legal supplement." },
     ]
   },
 ];
@@ -542,6 +541,44 @@ function getSetsReps(block, week) {
   return { sets, reps: block.baseReps, rir };
 }
 
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+function useDoneSets(dayId, weekId) {
+  const storageKey = `program-may26-done-${todayKey()}-${dayId}-w${weekId}`;
+  const [done, setDone] = useState(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch { return new Set(); }
+  });
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      setDone(raw ? new Set(JSON.parse(raw)) : new Set());
+    } catch { setDone(new Set()); }
+  }, [storageKey]);
+
+  const toggle = (id) => {
+    setDone(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      try { localStorage.setItem(storageKey, JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
+
+  const reset = () => {
+    setDone(new Set());
+    try { localStorage.removeItem(storageKey); } catch {}
+  };
+
+  return [done, toggle, reset];
+}
+
 // ─── MAIN COMPONENT ────────────────────────────────────────────────────
 function ProgramViewer() {
   const [activeDay, setActiveDay] = useState(0);
@@ -549,23 +586,26 @@ function ProgramViewer() {
   const [openExercise, setOpenExercise] = useState(null);
   const [primerOpen, setPrimerOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [refOpen, setRefOpen] = useState(false);
   const day = days[activeDay];
   const week = weeks.find(w => w.id === activeWeek);
-  const toggleEx = (name) => setOpenExercise(prev => prev === name ? null : name);
   const isHipCircuit = day.id === "hip-circuit";
 
+  const [done, toggleSet, resetDay] = useDoneSets(day.id, activeWeek);
+
+  const toggleEx = (name) => setOpenExercise(prev => prev === name ? null : name);
+
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0A", color: "#F4F1EC", fontFamily: "inherit", paddingBottom: 60 }}>
+    <div style={{ minHeight: "100vh", background: "#0A0A0A", color: "#F4F1EC", fontFamily: "inherit", paddingBottom: 80 }}>
       {/* HEADER */}
-      <div style={{ padding: "22px 18px 0", borderBottom: `3px solid ${day.color}`, transition: "border-color 0.3s" }}>
-        <div style={{ fontSize: 13, letterSpacing: 3, color: "#888", marginBottom: 4, fontFamily: "monospace", fontWeight: 600 }}>4-DAY UPPER/LOWER · STRENGTH + SIZE</div>
-        <div style={{ fontSize: 12, letterSpacing: 2, color: "#666", marginBottom: 14, fontFamily: "monospace" }}>TAP ANY EXERCISE FOR FORM CUES</div>
+      <div style={{ padding: "20px 18px 0", borderBottom: `3px solid ${day.color}`, transition: "border-color 0.3s" }}>
+        <div style={{ fontSize: 12, letterSpacing: 3, color: "#888", marginBottom: 4, fontFamily: "monospace", fontWeight: 600 }}>RUN SHEET · TAP ROWS TO TICK OFF</div>
 
         {/* DAY TABS */}
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, marginBottom: 14 }}>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, marginTop: 12, marginBottom: 12 }}>
           {days.map((d, i) => (
             <button key={i} onClick={() => { setActiveDay(i); setOpenExercise(null); setPrimerOpen(false); }}
-              style={{ background: activeDay === i ? d.color : "transparent", color: activeDay === i ? "#000" : "#AAA", border: `2px solid ${activeDay === i ? d.color : "#333"}`, borderRadius: 8, padding: "12px 16px", cursor: "pointer", fontFamily: "monospace", fontSize: 15, letterSpacing: 1.5, fontWeight: activeDay === i ? 800 : 600, whiteSpace: "nowrap", transition: "all 0.2s" }}>
+              style={{ background: activeDay === i ? d.color : "transparent", color: activeDay === i ? "#000" : "#AAA", border: `2px solid ${activeDay === i ? d.color : "#333"}`, borderRadius: 8, padding: "10px 14px", cursor: "pointer", fontFamily: "monospace", fontSize: 15, letterSpacing: 1.5, fontWeight: activeDay === i ? 800 : 600, whiteSpace: "nowrap", transition: "all 0.2s" }}>
               {d.isOptional ? "⚪ " : ""}{d.label}
             </button>
           ))}
@@ -576,7 +616,7 @@ function ProgramViewer() {
           <div style={{ display: "flex", gap: 8, paddingBottom: 14 }}>
             {weeks.map(w => (
               <button key={w.id} onClick={() => setActiveWeek(w.id)}
-                style={{ flex: 1, background: activeWeek === w.id ? `${w.color}33` : "transparent", color: activeWeek === w.id ? w.color : "#888", border: `2px solid ${activeWeek === w.id ? w.color : "#2A2A2A"}`, borderRadius: 8, padding: "10px 6px", cursor: "pointer", fontFamily: "monospace", fontSize: 15, letterSpacing: 1, fontWeight: activeWeek === w.id ? 800 : 600, transition: "all 0.2s" }}>
+                style={{ flex: 1, background: activeWeek === w.id ? `${w.color}33` : "transparent", color: activeWeek === w.id ? w.color : "#888", border: `2px solid ${activeWeek === w.id ? w.color : "#2A2A2A"}`, borderRadius: 8, padding: "8px 4px", cursor: "pointer", fontFamily: "monospace", fontSize: 15, letterSpacing: 1, fontWeight: activeWeek === w.id ? 800 : 600, transition: "all 0.2s" }}>
                 <div style={{ fontSize: 22, marginBottom: 2 }}>{w.emoji}</div>
                 <div>{w.label}</div>
               </button>
@@ -586,77 +626,49 @@ function ProgramViewer() {
       </div>
 
       {/* TODAY'S FOCUS CARD */}
-      <div style={{ padding: "20px 18px 0" }}>
-        <div style={{ background: `linear-gradient(135deg, ${day.color}20, transparent)`, border: `2px solid ${day.color}55`, borderRadius: 12, padding: 18 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 38, fontWeight: 900, color: day.color, lineHeight: 1.05, letterSpacing: -0.5 }}>{day.label}</div>
-              <div style={{ fontSize: 19, color: "#DDD", marginTop: 6, fontWeight: 500 }}>{day.focus}</div>
+      <div style={{ padding: "18px 18px 0" }}>
+        <div style={{ background: `linear-gradient(135deg, ${day.color}20, transparent)`, border: `2px solid ${day.color}55`, borderRadius: 12, padding: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 34, fontWeight: 900, color: day.color, lineHeight: 1.05, letterSpacing: -0.5 }}>{day.label}</div>
+              <div style={{ fontSize: 18, color: "#DDD", marginTop: 4, fontWeight: 500 }}>{day.focus}</div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 14, color: "#888", fontFamily: "monospace", letterSpacing: 2, fontWeight: 700 }}>{day.schedule}</div>
-              <div style={{ fontSize: 15, color: "#BBB", fontFamily: "monospace", marginTop: 3 }}>{day.duration}</div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: 13, color: "#888", fontFamily: "monospace", letterSpacing: 2, fontWeight: 700 }}>{day.schedule}</div>
+              <div style={{ fontSize: 14, color: "#BBB", fontFamily: "monospace", marginTop: 3 }}>{day.duration}</div>
             </div>
           </div>
-          {day.anchor && (
-            <div style={{ display: "flex", gap: 14, paddingTop: 14, borderTop: "1px solid #1F1F1F", marginTop: 8, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ fontSize: 12, color: "#888", fontFamily: "monospace", letterSpacing: 2, marginBottom: 4, fontWeight: 700 }}>⭐ ANCHOR</div>
-                <div style={{ fontSize: 18, color: "#FFF", fontWeight: 700 }}>{day.anchor}</div>
-              </div>
-              {!isHipCircuit && (
-                <div style={{ marginLeft: "auto" }}>
-                  <div style={{ fontSize: 12, color: "#888", fontFamily: "monospace", letterSpacing: 2, marginBottom: 4, fontWeight: 700 }}>WEEK {week.id} · {week.name.toUpperCase()}</div>
-                  <div style={{ fontSize: 15, color: week.color, fontWeight: 700 }}>{week.detail}</div>
-                </div>
-              )}
+          {!isHipCircuit && day.anchor && (
+            <div style={{ paddingTop: 12, borderTop: "1px solid #1F1F1F" }}>
+              <div style={{ fontSize: 12, color: "#888", fontFamily: "monospace", letterSpacing: 2, marginBottom: 4, fontWeight: 700 }}>WEEK {week.id} · {week.name.toUpperCase()}</div>
+              <div style={{ fontSize: 15, color: week.color, fontWeight: 700, lineHeight: 1.4 }}>{week.detail}</div>
+            </div>
+          )}
+          {done.size > 0 && (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, paddingTop: 12, borderTop: "1px solid #1F1F1F" }}>
+              <div style={{ fontSize: 14, color: "#AAA" }}>✓ <strong style={{ color: "#FFF" }}>{done.size}</strong> sets done today</div>
+              <button onClick={resetDay} style={{ background: "transparent", border: "1px solid #333", color: "#AAA", padding: "8px 12px", borderRadius: 6, fontSize: 13, cursor: "pointer", fontFamily: "monospace" }}>RESET DAY</button>
             </div>
           )}
         </div>
       </div>
 
-      {/* PROGRAM GUIDE (collapsible) */}
-      <div style={{ padding: "16px 18px 0" }}>
-        <button onClick={() => setGuideOpen(g => !g)}
-          style={{ width: "100%", background: "#101820", border: "2px solid #1E2A3A", borderRadius: 10, padding: "14px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
-          <div>
-            <span style={{ fontSize: 14, letterSpacing: 2.5, color: "#9DC4EE", fontFamily: "monospace", fontWeight: 700 }}>📖 PROGRAM GUIDE</span>
-            <div style={{ fontSize: 15, color: "#7794B0", marginTop: 4, fontFamily: "inherit" }}>How to follow this program · read once, reference as needed</div>
-          </div>
-          <span style={{ fontSize: 22, color: "#9DC4EE", fontWeight: 700 }}>{guideOpen ? "▲" : "▼"}</span>
-        </button>
-        {guideOpen && (
-          <div style={{ background: "#0A1018", border: "2px solid #1E2A3A", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -8, padding: "14px 16px" }}>
-            {guideContent.map((section, i) => (
-              <div key={i} style={{ marginBottom: i < guideContent.length - 1 ? 18 : 0, paddingBottom: i < guideContent.length - 1 ? 16 : 0, borderBottom: i < guideContent.length - 1 ? "1px solid #1A2233" : "none" }}>
-                <div style={{ fontSize: 17, color: "#9DC4EE", fontWeight: 800, marginBottom: 10 }}>{section.title}</div>
-                {section.items.map((item, j) => (
-                  <div key={j} style={{ marginBottom: 10 }}>
-                    <div style={{ fontSize: 13, color: "#7AAEDA", fontFamily: "monospace", letterSpacing: 1, fontWeight: 800, marginBottom: 3 }}>{item.label}</div>
-                    <div style={{ fontSize: 16, color: "#DDD", lineHeight: 1.55 }}>{item.text}</div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* PRIMER (collapsible) */}
       {!isHipCircuit && (
-        <div style={{ padding: "16px 18px 0" }}>
+        <div style={{ padding: "14px 18px 0" }}>
           <button onClick={() => setPrimerOpen(p => !p)}
-            style={{ width: "100%", background: "#101010", border: "2px solid #222", borderRadius: 10, padding: "14px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+            style={{ width: "100%", background: "#101010", border: "2px solid #222", borderRadius: 10, padding: "12px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
             <div>
               <span style={{ fontSize: 14, letterSpacing: 2.5, color: "#CCC", fontFamily: "monospace", fontWeight: 700 }}>🩺 DAILY PRIMER · 8 MIN</span>
-              <div style={{ fontSize: 15, color: "#888", marginTop: 4 }}>Cuff & scapular maintenance — same every session</div>
+              <div style={{ fontSize: 14, color: "#888", marginTop: 4 }}>Cuff & scapular maintenance — same every session</div>
             </div>
-            <span style={{ fontSize: 22, color: "#CCC", fontWeight: 700 }}>{primerOpen ? "▲" : "▼"}</span>
+            <span style={{ fontSize: 20, color: "#CCC", fontWeight: 700 }}>{primerOpen ? "▲" : "▼"}</span>
           </button>
           {primerOpen && (
-            <div style={{ background: "#0C0C0C", border: "2px solid #222", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -8, padding: "8px 0" }}>
+            <div style={{ background: "#0C0C0C", border: "2px solid #222", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -8 }}>
               {PRIMER.map((p, i) => (
-                <ExRow key={i} exercise={{ name: p.name, prescription: p.detail }} color="#CCC" open={openExercise} onToggle={toggleEx} />
+                <SimpleSetRow key={i} id={`primer-${i}`} name={p.name} detail={p.detail} done={done} onToggle={toggleSet}
+                  openExercise={openExercise} toggleEx={toggleEx} accentColor="#CCC" />
               ))}
             </div>
           )}
@@ -665,180 +677,394 @@ function ProgramViewer() {
 
       {/* GLUTE WARMUP (lower days only) */}
       {day.gluteWarmup && (
-        <div style={{ padding: "16px 18px 0" }}>
+        <div style={{ padding: "14px 18px 0" }}>
           <Section label="GLUTE WARM-UP" sublabel="2 min · before main lifts" color={day.color}>
             {day.gluteWarmup.map((g, i) => (
-              <ExRow key={i} exercise={{ name: g.name, prescription: g.detail }} color={day.color} open={openExercise} onToggle={toggleEx} />
+              <SimpleSetRow key={i} id={`glute-${i}`} name={g.name} detail={g.detail} done={done} onToggle={toggleSet}
+                openExercise={openExercise} toggleEx={toggleEx} accentColor={day.color} />
             ))}
           </Section>
         </div>
       )}
 
       {/* MAIN SESSION BLOCKS */}
-      <div style={{ padding: "16px 18px 0" }}>
+      <div style={{ padding: "14px 18px 0" }}>
         {day.blocks.map((block, i) => (
-          <BlockCard key={i} block={block} color={day.color} week={activeWeek} open={openExercise} onToggle={toggleEx} />
+          <BlockCard key={i} block={block} color={day.color} week={activeWeek}
+            done={done} onToggleSet={toggleSet}
+            openExercise={openExercise} toggleEx={toggleEx} />
         ))}
       </div>
 
-      {/* WEEKLY SCHEDULE */}
-      <div style={{ padding: "32px 18px 0" }}>
-        <div style={{ fontSize: 13, letterSpacing: 3, color: "#888", marginBottom: 12, fontFamily: "monospace", fontWeight: 700 }}>WEEKLY SCHEDULE</div>
-        <div style={{ display: "flex", gap: 5 }}>
-          {[
-            { d: "MON", id: "lower-a" },
-            { d: "TUE", id: "upper-a" },
-            { d: "WED", id: "hip-circuit", optional: true },
-            { d: "THU", id: "lower-b" },
-            { d: "FRI", id: "upper-b" },
-            { d: "SAT", id: "hip-circuit", optional: true },
-            { d: "SUN", id: null },
-          ].map((s, i) => {
-            const refDay = days.find(d => d.id === s.id);
-            return (
-              <div key={i} style={{ flex: 1, minWidth: 0, background: "#0E0E0E", borderTop: `4px solid ${refDay ? refDay.color : "#333"}`, borderRadius: 6, padding: "8px 4px", textAlign: "center" }}>
-                <div style={{ fontSize: 12, letterSpacing: 1, color: "#888", fontFamily: "monospace", fontWeight: 700 }}>{s.d}</div>
-                <div style={{ fontSize: 12, color: refDay ? refDay.color : "#555", marginTop: 4, fontWeight: 700 }}>
-                  {!s.id ? "REST" : s.optional ? "Hip ⚪" : refDay.label.replace("LOWER ", "L-").replace("UPPER ", "U-")}
-                </div>
+      {/* REFERENCE (collapsible — schedule + mesocycle + habits) */}
+      <div style={{ padding: "20px 18px 0" }}>
+        <button onClick={() => setRefOpen(r => !r)}
+          style={{ width: "100%", background: "#0E0E0E", border: "2px solid #222", borderRadius: 10, padding: "12px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+          <div>
+            <span style={{ fontSize: 14, letterSpacing: 2.5, color: "#CCC", fontFamily: "monospace", fontWeight: 700 }}>📅 REFERENCE</span>
+            <div style={{ fontSize: 14, color: "#888", marginTop: 4 }}>Weekly schedule · mesocycle · daily habits</div>
+          </div>
+          <span style={{ fontSize: 20, color: "#CCC", fontWeight: 700 }}>{refOpen ? "▲" : "▼"}</span>
+        </button>
+        {refOpen && (
+          <div style={{ background: "#0A0A0A", border: "2px solid #222", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -8, padding: "14px 16px" }}>
+            {/* WEEKLY SCHEDULE */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 13, letterSpacing: 3, color: "#888", marginBottom: 10, fontFamily: "monospace", fontWeight: 700 }}>WEEKLY SCHEDULE</div>
+              <div style={{ display: "flex", gap: 5 }}>
+                {[
+                  { d: "MON", id: "lower-a" },
+                  { d: "TUE", id: "upper-a" },
+                  { d: "WED", id: "hip-circuit", optional: true },
+                  { d: "THU", id: "lower-b" },
+                  { d: "FRI", id: "upper-b" },
+                  { d: "SAT", id: "hip-circuit", optional: true },
+                  { d: "SUN", id: null },
+                ].map((s, i) => {
+                  const refDay = days.find(d => d.id === s.id);
+                  return (
+                    <div key={i} style={{ flex: 1, minWidth: 0, background: "#0E0E0E", borderTop: `4px solid ${refDay ? refDay.color : "#333"}`, borderRadius: 6, padding: "6px 4px", textAlign: "center" }}>
+                      <div style={{ fontSize: 11, letterSpacing: 1, color: "#888", fontFamily: "monospace", fontWeight: 700 }}>{s.d}</div>
+                      <div style={{ fontSize: 11, color: refDay ? refDay.color : "#555", marginTop: 4, fontWeight: 700 }}>
+                        {!s.id ? "REST" : s.optional ? "Hip ⚪" : refDay.label.replace("LOWER ", "L-").replace("UPPER ", "U-")}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MESOCYCLE KEY */}
-      <div style={{ padding: "24px 18px 0" }}>
-        <div style={{ fontSize: 13, letterSpacing: 3, color: "#888", marginBottom: 12, fontFamily: "monospace", fontWeight: 700 }}>4-WEEK MESOCYCLE</div>
-        <div style={{ background: "#0E0E0E", border: "2px solid #1F1F1F", borderRadius: 10, padding: "14px 16px" }}>
-          {weeks.map((w, i) => (
-            <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderBottom: i < weeks.length - 1 ? "1px solid #1A1A1A" : "none", alignItems: "center" }}>
-              <span style={{ fontSize: 24 }}>{w.emoji}</span>
-              <span style={{ fontSize: 16, color: w.color, fontFamily: "monospace", fontWeight: 800, minWidth: 36 }}>{w.label}</span>
-              <span style={{ fontSize: 15, color: "#DDD", flex: 1, lineHeight: 1.4 }}>{w.detail}</span>
             </div>
-          ))}
-        </div>
+
+            {/* MESOCYCLE */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 13, letterSpacing: 3, color: "#888", marginBottom: 10, fontFamily: "monospace", fontWeight: 700 }}>4-WEEK MESOCYCLE</div>
+              <div style={{ background: "#0E0E0E", border: "1px solid #1F1F1F", borderRadius: 8, padding: "10px 14px" }}>
+                {weeks.map((w, i) => (
+                  <div key={i} style={{ display: "flex", gap: 12, padding: "8px 0", borderBottom: i < weeks.length - 1 ? "1px solid #1A1A1A" : "none", alignItems: "center" }}>
+                    <span style={{ fontSize: 22 }}>{w.emoji}</span>
+                    <span style={{ fontSize: 15, color: w.color, fontFamily: "monospace", fontWeight: 800, minWidth: 36 }}>{w.label}</span>
+                    <span style={{ fontSize: 14, color: "#DDD", flex: 1, lineHeight: 1.4 }}>{w.detail}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* DAILY HABITS */}
+            <div>
+              <div style={{ fontSize: 13, letterSpacing: 3, color: "#6FD071", marginBottom: 10, fontFamily: "monospace", fontWeight: 700 }}>🌿 DAILY HABITS</div>
+              <div style={{ background: "#0E120E", border: "1px solid #1F2A1F", borderRadius: 8, padding: "10px 14px" }}>
+                {dailyHabits.map((h, i) => (
+                  <div key={i} style={{ fontSize: 15, color: "#DDD", padding: "6px 0", borderBottom: i < dailyHabits.length - 1 ? "1px solid #182218" : "none", lineHeight: 1.5 }}>— {h}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* DAILY HABITS */}
-      <div style={{ padding: "22px 18px 0" }}>
-        <div style={{ fontSize: 13, letterSpacing: 3, color: "#6FD071", marginBottom: 12, fontFamily: "monospace", fontWeight: 700 }}>🌿 DAILY HABITS</div>
-        <div style={{ background: "#0E120E", border: "2px solid #1F2A1F", borderRadius: 10, padding: "12px 14px" }}>
-          {dailyHabits.map((h, i) => (
-            <div key={i} style={{ fontSize: 16, color: "#DDD", padding: "8px 0", borderBottom: i < dailyHabits.length - 1 ? "1px solid #182218" : "none", lineHeight: 1.5 }}>— {h}</div>
-          ))}
-        </div>
+      {/* PROGRAM GUIDE (collapsible — at bottom now) */}
+      <div style={{ padding: "14px 18px 0" }}>
+        <button onClick={() => setGuideOpen(g => !g)}
+          style={{ width: "100%", background: "#101820", border: "2px solid #1E2A3A", borderRadius: 10, padding: "12px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+          <div>
+            <span style={{ fontSize: 14, letterSpacing: 2.5, color: "#9DC4EE", fontFamily: "monospace", fontWeight: 700 }}>📖 PROGRAM GUIDE</span>
+            <div style={{ fontSize: 14, color: "#7794B0", marginTop: 4 }}>How to follow this program · read once</div>
+          </div>
+          <span style={{ fontSize: 20, color: "#9DC4EE", fontWeight: 700 }}>{guideOpen ? "▲" : "▼"}</span>
+        </button>
+        {guideOpen && (
+          <div style={{ background: "#0A1018", border: "2px solid #1E2A3A", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -8, padding: "14px 16px" }}>
+            {guideContent.map((section, i) => (
+              <div key={i} style={{ marginBottom: i < guideContent.length - 1 ? 16 : 0, paddingBottom: i < guideContent.length - 1 ? 14 : 0, borderBottom: i < guideContent.length - 1 ? "1px solid #1A2233" : "none" }}>
+                <div style={{ fontSize: 16, color: "#9DC4EE", fontWeight: 800, marginBottom: 10 }}>{section.title}</div>
+                {section.items.map((item, j) => (
+                  <div key={j} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, color: "#7AAEDA", fontFamily: "monospace", letterSpacing: 1, fontWeight: 800, marginBottom: 3 }}>{item.label}</div>
+                    <div style={{ fontSize: 15, color: "#DDD", lineHeight: 1.55 }}>{item.text}</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// ─── BLOCK CARD ────────────────────────────────────────────────────────
-function BlockCard({ block, color, week, open, onToggle }) {
+// ─── BLOCK CARD (run-sheet style) ──────────────────────────────────────
+function BlockCard({ block, color, week, done, onToggleSet, openExercise, toggleEx }) {
   const isA1 = block.type === "A1";
-  const prescriptions = getSetsReps(block, week);
-  const accentColor = isA1 ? color : "#AAA";
+  const presc = getSetsReps(block, week);
+  const accentColor = isA1 ? color : "#BBB";
+  const exercises = block.exercises;
 
   return (
     <div style={{
-      marginBottom: 16,
+      marginBottom: 14,
       background: isA1 ? `linear-gradient(135deg, ${color}18, #0C0C0C 50%)` : "#0E0E0E",
       border: `2px solid ${isA1 ? `${color}55` : "#222"}`,
       borderLeft: `6px solid ${accentColor}`,
       borderRadius: 10,
       overflow: "hidden"
     }}>
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid #1A1A1A" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-          <div style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
-            <span style={{ fontSize: 22, fontWeight: 900, color: accentColor, fontFamily: "monospace" }}>{block.type}</span>
-            <span style={{ fontSize: 14, letterSpacing: 2, color: "#BBB", fontFamily: "monospace", fontWeight: 700 }}>{block.label}</span>
-          </div>
-          <span style={{ fontSize: 13, color: "#888", fontFamily: "monospace", fontWeight: 600 }}>{block.rest}</span>
+      {/* BLOCK HEADER */}
+      <div style={{ padding: "10px 14px", borderBottom: "1px solid #1A1A1A", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+          <span style={{ fontSize: 22, fontWeight: 900, color: accentColor, fontFamily: "monospace" }}>{block.type}</span>
+          <span style={{ fontSize: 13, letterSpacing: 2, color: "#AAA", fontFamily: "monospace", fontWeight: 700 }}>{block.label}</span>
         </div>
+        <span style={{ fontSize: 13, color: "#888", fontFamily: "monospace", fontWeight: 600 }}>Rest {block.rest}</span>
       </div>
 
-      {block.exercises.map((ex, i) => {
-        const sets = ex.isA1 ? prescriptions.sets : prescriptions.sets;
-        const reps = ex.isA1 ? prescriptions.reps : (ex.reps || prescriptions.reps);
-        const rir = ex.isA1 ? prescriptions.rir : prescriptions.rir;
-        const isLast = i === block.exercises.length - 1;
-        const info = EX[ex.name];
-        const isOpen = open === ex.name;
+      {/* EXERCISE HEADERS — one per exercise (form cues toggle here) */}
+      <div style={{ padding: "0", borderBottom: "1px solid #1A1A1A" }}>
+        {exercises.map((ex, i) => {
+          const info = EX[ex.name];
+          const isOpen = openExercise === ex.name;
+          return (
+            <ExerciseHeader key={i} ex={ex} info={info} isOpen={isOpen} toggleEx={toggleEx} color={color} isLast={i === exercises.length - 1} />
+          );
+        })}
+      </div>
 
-        return (
-          <div key={i} style={{ borderBottom: isLast ? "none" : "1px solid #181818" }}>
-            <div onClick={() => info && onToggle(ex.name)}
-              style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10, cursor: info ? "pointer" : "default", minHeight: 48 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
-                  {ex.anchor && <span style={{ fontSize: 20 }}>⭐</span>}
-                  <span style={{ fontSize: 21, color: isOpen ? color : "#FFF", fontWeight: ex.anchor ? 800 : 700, lineHeight: 1.25 }}>{ex.name}</span>
-                  {info && <span style={{ fontSize: 14, color: isOpen ? color : "#888", fontWeight: 800, marginLeft: 2 }}>{isOpen ? "▲" : "▼"}</span>}
-                </div>
-              </div>
+      {/* RUN SHEET ROWS */}
+      {isA1 ? (
+        <A1RunSheet block={block} presc={presc} color={color} done={done} onToggleSet={onToggleSet} />
+      ) : block.isSuperset ? (
+        <SupersetRunSheet block={block} presc={presc} color={accentColor} done={done} onToggleSet={onToggleSet} />
+      ) : (
+        <SingleRunSheet block={block} presc={presc} color={accentColor} done={done} onToggleSet={onToggleSet} />
+      )}
+    </div>
+  );
+}
 
-              <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                <PrescriptionPill label="SETS" value={String(sets)} color={accentColor} />
-                <PrescriptionPill label="REPS" value={reps} color={accentColor} />
-                <PrescriptionPill label="RIR" value={rir} color={accentColor} />
-              </div>
-
-              {ex.note && <div style={{ fontSize: 15, color: "#AAA", marginTop: 2 }}>{ex.note}</div>}
-            </div>
-
-            {isOpen && info && (
-              <div style={{ padding: "0 16px 14px" }}>
-                <InfoPanel info={info} color={color} />
-              </div>
-            )}
+function ExerciseHeader({ ex, info, isOpen, toggleEx, color, isLast }) {
+  return (
+    <div style={{ borderBottom: isLast ? "none" : "1px solid #161616" }}>
+      <div onClick={() => info && toggleEx(ex.name)}
+        style={{ padding: "12px 14px", cursor: info ? "pointer" : "default", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, minHeight: 48 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            {ex.anchor && <span style={{ fontSize: 20 }}>⭐</span>}
+            <span style={{ fontSize: 20, color: isOpen ? color : "#FFF", fontWeight: ex.anchor ? 800 : 700, lineHeight: 1.25 }}>{ex.name}</span>
           </div>
+          {ex.note && <div style={{ fontSize: 14, color: "#AAA", marginTop: 4 }}>{ex.note}</div>}
+        </div>
+        {info && (
+          <span style={{ fontSize: 12, color: isOpen ? color : "#888", fontFamily: "monospace", fontWeight: 700, whiteSpace: "nowrap", padding: "6px 10px", border: `1.5px solid ${isOpen ? color : "#333"}`, borderRadius: 6 }}>
+            {isOpen ? "▲ FORM" : "▼ FORM"}
+          </span>
+        )}
+      </div>
+      {isOpen && info && (
+        <div style={{ padding: "0 14px 12px" }}>
+          <InfoPanel info={info} color={color} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── A1 RUN SHEET — warmup ramp + working sets ─────────────────────────
+function A1RunSheet({ block, presc, color, done, onToggleSet }) {
+  const ex = block.exercises[0];
+  const ramp = WARMUP_RAMPS[ex.name] || [];
+  const sets = presc.sets;
+
+  return (
+    <div>
+      {/* WARM-UP SECTION */}
+      {ramp.length > 0 && (
+        <>
+          <SubHeader label="WARM-UP RAMP" color="#FFB14A" />
+          {ramp.map((r, i) => {
+            const id = `${ex.name}-w-${i}`;
+            return (
+              <SetRow key={id} id={id}
+                done={done.has(id)} onToggle={onToggleSet}
+                tickColor="#FFB14A"
+                leftLabel={`WARM-UP ${i+1} / ${ramp.length}`}
+                rightLabel={`${r.weight} × ${r.reps}`}
+                note={r.note}
+              />
+            );
+          })}
+        </>
+      )}
+
+      {/* WORKING SETS */}
+      <SubHeader label="WORKING SETS" color={color} />
+      {[...Array(sets)].map((_, i) => {
+        const id = `${ex.name}-s-${i}`;
+        return (
+          <SetRow key={id} id={id}
+            done={done.has(id)} onToggle={onToggleSet}
+            tickColor={color}
+            leftLabel={`SET ${i+1} / ${sets}`}
+            rightLabel={`${presc.reps} reps`}
+            note={`RIR ${presc.rir}`}
+            big
+          />
         );
       })}
     </div>
   );
 }
 
-function PrescriptionPill({ label, value, color }) {
+// ─── SINGLE EXERCISE RUN SHEET (A2-like) ───────────────────────────────
+function SingleRunSheet({ block, presc, color, done, onToggleSet }) {
+  const ex = block.exercises[0];
+  const sets = presc.sets;
+  const reps = ex.reps || presc.reps;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <span style={{ fontSize: 12, letterSpacing: 2, color: "#888", fontFamily: "monospace", fontWeight: 700 }}>{label}</span>
-      <span style={{ fontSize: 22, color, fontFamily: "monospace", fontWeight: 800 }}>{value}</span>
+    <div>
+      {[...Array(sets)].map((_, i) => {
+        const id = `${ex.name}-s-${i}`;
+        return (
+          <SetRow key={id} id={id}
+            done={done.has(id)} onToggle={onToggleSet}
+            tickColor={color}
+            leftLabel={`SET ${i+1} / ${sets}`}
+            rightLabel={`${reps} reps`}
+            note={`RIR ${presc.rir}`}
+          />
+        );
+      })}
     </div>
+  );
+}
+
+// ─── SUPERSET / CIRCUIT RUN SHEET — rounds × exercises ─────────────────
+function SupersetRunSheet({ block, presc, color, done, onToggleSet }) {
+  const rounds = presc.sets;
+  return (
+    <div>
+      {[...Array(rounds)].map((_, r) => (
+        <React.Fragment key={r}>
+          <SubHeader label={`ROUND ${r+1} / ${rounds}`} color={color} />
+          {block.exercises.map((ex, i) => {
+            const id = `${ex.name}-r${r}-${i}`;
+            const reps = ex.reps || presc.reps;
+            return (
+              <SetRow key={id} id={id}
+                done={done.has(id)} onToggle={onToggleSet}
+                tickColor={color}
+                leftLabel={ex.name}
+                rightLabel={reps}
+                note={ex.note}
+              />
+            );
+          })}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// ─── PRIMER / GLUTE WARM-UP ROW (simple, no rounds) ────────────────────
+function SimpleSetRow({ id, name, detail, done, onToggle, openExercise, toggleEx, accentColor }) {
+  const info = EX[name];
+  const isOpen = openExercise === name;
+  const isDone = done.has(id);
+  return (
+    <div style={{ borderBottom: "1px solid #161616" }}>
+      <div style={{ display: "flex", alignItems: "stretch", minHeight: 56 }}>
+        {/* TICK ZONE */}
+        <div onClick={() => onToggle(id)}
+          style={{ display: "flex", alignItems: "center", padding: "0 14px", cursor: "pointer", flexShrink: 0 }}>
+          <TickBox done={isDone} color={accentColor} />
+        </div>
+        {/* NAME + DETAIL ZONE (tap = open form) */}
+        <div onClick={() => info && toggleEx(name)}
+          style={{ flex: 1, padding: "10px 14px 10px 0", cursor: info ? "pointer" : "default", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 17, color: isOpen ? accentColor : (isDone ? "#666" : "#EEE"), fontWeight: 600, textDecoration: isDone ? "line-through" : "none" }}>{name}</span>
+            {info && <span style={{ fontSize: 12, color: isOpen ? accentColor : "#777", fontWeight: 800, marginLeft: 4 }}>{isOpen ? "▲" : "▼"}</span>}
+          </div>
+          <span style={{ fontSize: 14, color: isDone ? "#555" : "#AAA", fontFamily: "monospace", whiteSpace: "nowrap", textDecoration: isDone ? "line-through" : "none" }}>{detail}</span>
+        </div>
+      </div>
+      {isOpen && info && (
+        <div style={{ padding: "0 14px 10px" }}>
+          <InfoPanel info={info} color={accentColor} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SET ROW (tickable run-sheet row) ──────────────────────────────────
+function SetRow({ id, done, onToggle, tickColor, leftLabel, rightLabel, note, big }) {
+  return (
+    <div onClick={() => onToggle(id)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        padding: big ? "14px 14px" : "12px 14px",
+        borderBottom: "1px solid #161616",
+        cursor: "pointer",
+        background: done ? "#080808" : "transparent",
+        opacity: done ? 0.5 : 1,
+        minHeight: 56,
+        transition: "opacity 0.15s, background 0.15s",
+      }}
+    >
+      <TickBox done={done} color={tickColor} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          fontSize: 12, letterSpacing: 1.5, color: "#888",
+          fontFamily: "monospace", fontWeight: 700, marginBottom: 2,
+        }}>{leftLabel}</div>
+        <div style={{
+          fontSize: big ? 21 : 18,
+          color: done ? "#777" : "#FFF",
+          fontWeight: 700,
+          lineHeight: 1.25,
+          textDecoration: done ? "line-through" : "none",
+        }}>{rightLabel}</div>
+        {note && <div style={{ fontSize: 13, color: done ? "#555" : "#999", marginTop: 3 }}>{note}</div>}
+      </div>
+    </div>
+  );
+}
+
+function TickBox({ done, color }) {
+  return (
+    <div style={{
+      width: 34, height: 34, flexShrink: 0,
+      border: `2.5px solid ${done ? color : "#3A3A3A"}`,
+      background: done ? color : "transparent",
+      borderRadius: 8,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 22, fontWeight: 900,
+      color: done ? "#000" : "transparent",
+      transition: "all 0.15s",
+    }}>{done ? "✓" : ""}</div>
+  );
+}
+
+function SubHeader({ label, color }) {
+  return (
+    <div style={{
+      padding: "8px 14px",
+      background: "#070707",
+      borderBottom: "1px solid #181818",
+      fontSize: 11, letterSpacing: 2.5,
+      color, fontFamily: "monospace", fontWeight: 800,
+    }}>{label}</div>
   );
 }
 
 function Section({ label, sublabel, color, children }) {
   return (
-    <div style={{ background: "#0E0E0E", border: "2px solid #222", borderRadius: 10, padding: "14px 16px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid #1F1F1F", flexWrap: "wrap" }}>
+    <div style={{ background: "#0E0E0E", border: "2px solid #222", borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, padding: "12px 16px", borderBottom: "1px solid #1F1F1F", flexWrap: "wrap" }}>
         <span style={{ fontSize: 14, letterSpacing: 3, color, fontFamily: "monospace", fontWeight: 800 }}>{label}</span>
         {sublabel && <span style={{ fontSize: 13, color: "#888", fontFamily: "monospace" }}>{sublabel}</span>}
       </div>
       {children}
-    </div>
-  );
-}
-
-function ExRow({ exercise, color, open, onToggle }) {
-  const info = EX[exercise.name];
-  const isOpen = open === exercise.name;
-  return (
-    <div>
-      <div onClick={() => info && onToggle(exercise.name)}
-        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", cursor: info ? "pointer" : "default", gap: 12, minHeight: 48 }}>
-        <div style={{ display: "flex", gap: 6, alignItems: "center", flex: 1 }}>
-          <span style={{ fontSize: 17, color: isOpen ? color : "#EEE", fontWeight: 600 }}>{exercise.name}</span>
-          {info && <span style={{ fontSize: 13, color: isOpen ? color : "#888", fontWeight: 800, marginLeft: 4 }}>{isOpen ? "▲" : "▼"}</span>}
-        </div>
-        <span style={{ fontSize: 14, color: "#AAA", fontFamily: "monospace", fontWeight: 600, whiteSpace: "nowrap" }}>{exercise.prescription}</span>
-      </div>
-      {isOpen && info && (
-        <div style={{ padding: "0 16px 10px" }}>
-          <InfoPanel info={info} color={color} />
-        </div>
-      )}
     </div>
   );
 }
@@ -848,54 +1074,49 @@ function InfoPanel({ info, color }) {
   return (
     <div style={{ background: "#080808", borderLeft: `4px solid ${color}`, padding: "14px 16px", borderRadius: "0 8px 8px 0", marginTop: 6 }}>
       <InfoSect label="HOW TO" color={color}>
-        <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.howTo}</p>
+        <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.howTo}</p>
       </InfoSect>
       <InfoSect label="FEEL" color={color}>
-        <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.feel}</p>
+        <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.feel}</p>
       </InfoSect>
       <InfoSect label="WHAT MOVES" color={color}>
-        <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.moves}</p>
+        <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.moves}</p>
       </InfoSect>
       {info.tempo && (
         <InfoSect label="TEMPO" color={color}>
-          <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.tempo}</p>
-        </InfoSect>
-      )}
-      {info.warmupSets && (
-        <InfoSect label="WARM-UP SETS" color="#FFB14A">
-          <p style={{ margin: 0, fontSize: 17, color: "#F0D0A0", lineHeight: 1.55 }}>{info.warmupSets}</p>
+          <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.tempo}</p>
         </InfoSect>
       )}
       {info.breathing && (
         <InfoSect label="BREATHING & BRACE" color={color}>
-          <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.breathing}</p>
+          <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.breathing}</p>
         </InfoSect>
       )}
       {info.progression && (
         <InfoSect label="PROGRESSION" color="#8FE082">
-          <p style={{ margin: 0, fontSize: 17, color: "#C5EBC0", lineHeight: 1.55 }}>{info.progression}</p>
+          <p style={{ margin: 0, fontSize: 16, color: "#C5EBC0", lineHeight: 1.55 }}>{info.progression}</p>
         </InfoSect>
       )}
       {info.sub && (
         <InfoSect label="IF EQUIPMENT MISSING" color="#9DC4EE">
-          <p style={{ margin: 0, fontSize: 17, color: "#C5DCEC", lineHeight: 1.55 }}>{info.sub}</p>
+          <p style={{ margin: 0, fontSize: 16, color: "#C5DCEC", lineHeight: 1.55 }}>{info.sub}</p>
         </InfoSect>
       )}
       {info.belt && (
         <InfoSect label="BELT" color={color}>
-          <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.belt}</p>
+          <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.belt}</p>
         </InfoSect>
       )}
       {info.equipment && (
         <InfoSect label="EQUIPMENT" color={color}>
-          <p style={{ margin: 0, fontSize: 17, color: "#EAEAEA", lineHeight: 1.55 }}>{info.equipment}</p>
+          <p style={{ margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.55 }}>{info.equipment}</p>
         </InfoSect>
       )}
       <InfoSect label="COMMON MISTAKES" color={color} last>
         {info.mistakes.map((m, i) => (
           <div key={i} style={{ display: "flex", gap: 10, marginTop: i === 0 ? 0 : 10, alignItems: "flex-start" }}>
-            <span style={{ color: "#FF8866", fontSize: 17, marginTop: 1, flexShrink: 0, fontWeight: 800 }}>⚠</span>
-            <span style={{ fontSize: 17, color: "#DADADA", lineHeight: 1.5 }}>{m}</span>
+            <span style={{ color: "#FF8866", fontSize: 16, marginTop: 1, flexShrink: 0, fontWeight: 800 }}>⚠</span>
+            <span style={{ fontSize: 16, color: "#DADADA", lineHeight: 1.5 }}>{m}</span>
           </div>
         ))}
       </InfoSect>
@@ -905,8 +1126,8 @@ function InfoPanel({ info, color }) {
 
 function InfoSect({ label, color, children, last }) {
   return (
-    <div style={{ marginBottom: last ? 0 : 16 }}>
-      <div style={{ fontSize: 13, letterSpacing: 2, color, fontFamily: "monospace", marginBottom: 7, fontWeight: 800 }}>{label}</div>
+    <div style={{ marginBottom: last ? 0 : 14 }}>
+      <div style={{ fontSize: 12, letterSpacing: 2, color, fontFamily: "monospace", marginBottom: 6, fontWeight: 800 }}>{label}</div>
       {children}
     </div>
   );
