@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0A0A0A" />
+<title>Workout — June 2026</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0A0A0A; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  #root { min-height: 100vh; }
+  button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  button, [role="button"] { min-height: 44px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+
+const EX = {
+  "Wall Slide": {
+    howTo: "Stand with your back flat against a wall, feet about 15cm out from it. Press your lower back, both shoulders, both elbows, and both wrists into the wall — arms make a 'W'. Keeping contact, slowly slide your arms up overhead into a 'Y', then back down. Only go as high as you can keep wrists and elbows on the wall.",
+    feel: "The muscles around and between your shoulder blades switching on to keep your arms pinned. Preps the shoulder to press safely.",
+    moves: "Arms slide up and down. Shoulders pull DOWN (away from ears) as arms rise — no shrugging.",
+    mistakes: ["Arms peeling off the wall to reach higher", "Lower back arching off the wall", "Shrugging up toward your ears"]
+  },
+  "Band ER at 0°": {
+    howTo: "Tie a light band at elbow height. Stand side-on, holding it in the far hand. Tuck that elbow tight to your side, bent at a right angle, forearm forward. Keeping the elbow glued to your ribs, rotate your forearm outward (away from your belly), then slowly return. 'ER' = external rotation = rotating the arm outward.",
+    feel: "The back of your shoulder — the small rotator cuff muscles (deep muscles that stabilise the shoulder). Keeping them strong protects your healed tear.",
+    moves: "Only your forearm swings outward like a gate. Upper arm and elbow stay still against your side.",
+    mistakes: ["Elbow drifting off your ribs (tuck a towel there)", "Twisting your whole body", "Band too heavy — keep it light"]
+  },
+  "Prone Y": {
+    howTo: "Lie face-down on a bench at a slight incline (~30°). Arms hang down holding very light dumbbells (0.5–1kg), thumbs pointing up. Raise both arms up and out into a 'Y' (10-and-2 o'clock), thumbs up the whole time. Lower slowly.",
+    feel: "The top and back of your shoulder and between your shoulder blades. One of the best exercises for the muscle you tore (supraspinatus — a rotator cuff muscle).",
+    moves: "Arms raise into a Y. Shoulder blades pull together and down. Thumbs stay up like holding two cans.",
+    mistakes: ["Weight too heavy — half a kilo is enough", "Thumbs rotating down", "Shrugging up to your ears"]
+  },
+  "Light Face Pull": {
+    howTo: "Set a rope on a cable to eye level, light weight. Grab it with both hands, thumbs pointing back at your face. Pull toward your face leading with the elbows so they go HIGH and wide — hands end beside your ears. Return slowly.",
+    feel: "Back of your shoulders and upper back. Light and easy — keeps the rear shoulder and cuff healthy.",
+    moves: "Rope comes to your face. Elbows go high and wide — that path is what matters.",
+    mistakes: ["Pulling to your chest instead of your face", "Letting elbows drop low", "Going heavy"]
+  },
+  "Doorway Pec Stretch": {
+    howTo: "Stand in a doorway. Put one forearm flat on the frame, elbow bent at a right angle, roughly shoulder height. Step gently forward with that-side foot until you feel a stretch across the front of your chest/shoulder. Hold 30s, switch sides.",
+    feel: "A stretch across the front of your chest and shoulder. Opens the tightness from sitting.",
+    moves: "Nothing during the hold — lean in to set it, then stay still and breathe.",
+    mistakes: ["Pushing too hard — mild stretch, never painful", "Shrugging the shoulder", "Holding your breath"]
+  },
+  "Foam Roller T-Spine Extension": {
+    howTo: "Lie back over a foam roller placed across your MID-back (behind your chest, not your lower back). Support your head with your hands. Gently arch back over the roller, then come up. Shift the roller a little to hit a few mid-back spots. 'T-spine' = the mid/upper part of your back.",
+    feel: "Your mid-back gently opening. Counters the rounded-forward sitting posture.",
+    moves: "Only your mid-back extends over the roller. Keep it off your lower back.",
+    mistakes: ["Letting the roller slide to your lower back", "Forcing a big arch", "Holding your breath"]
+  },
+  "Incline DB Press (≤30°)": {
+    howTo: "Set a bench to a low incline — no more than 30° (just slightly tilted, NOT upright). Lie back, a dumbbell in each hand at chest level, palms roughly forward. Press up and slightly inward until arms are straight, lower slowly to chest level. The low angle keeps the shoulder safe.",
+    feel: "Your chest doing most of the work, front of shoulders helping. Gentle chest stretch at the bottom.",
+    moves: "Dumbbells press up in a slight arc. Shoulder blades stay pulled back and set against the bench.",
+    mistakes: ["Bench too steep — keep it ≤30°", "Bouncing the dumbbells off your chest", "Shoulders rolling forward off the bench at the top"],
+    progression: "When you hit the top of the rep range (e.g. 10) on all sets with 2 reps still in you, add 1–2kg per dumbbell next time."
+  },
+  "Cable Crossover": {
+    howTo: "Set two cable handles to chest-to-head height. Stand in the middle, one foot forward, lean forward slightly. With a slight elbow bend, bring both hands together in front of your chest in a big hug, squeeze, then open back out under control.",
+    feel: "Chest squeezing as hands meet, stretch as they open.",
+    moves: "Arms sweep together in an arc like hugging a barrel. Elbows stay slightly bent. Body still.",
+    mistakes: ["Bending elbows more and more (becomes a press)", "Cables yanking arms back fast", "So much weight you lose the arc"]
+  },
+  "Weighted Chin-Up": {
+    howTo: "Hang from a bar, palms facing TOWARD you, hands shoulder-width. If easy, add weight (belt or dumbbell between feet). Pull up until your chin clears the bar, driving elbows down to your ribs. Lower slowly (~3s) to straight arms.",
+    feel: "Your back (lats — the big fan-shaped muscles on the sides of your back) and biceps.",
+    moves: "Body rises until chin passes the bar. Lower to straight arms each rep.",
+    mistakes: ["Swinging to cheat up", "Not full range — chin clears bar, arms straighten at bottom", "Adding weight before clean bodyweight reps"],
+    sub: "Can't do bodyweight chin-ups yet? Use the Lat Pulldown machine, palms-facing-each-other grip, 4 × 5–8."
+  },
+  "Lat Pulldown (neutral grip)": {
+    howTo: "Sit at the lat pulldown (wedge cushion on the seat). Use a handle where palms face each other. Pull the bar to your collarbone, driving elbows down and slightly back. Let it rise under control to straight arms.",
+    feel: "The big muscles on the sides of your back (lats). Stretch at the top.",
+    moves: "Elbows drive down and behind you. Slight lean-back (10–15°) is fine. Arms straighten at top.",
+    mistakes: ["Pulling with arms — lead with the elbows", "Heaving back (that's a row)", "Not straightening arms at top"]
+  },
+  "Chest-Supported DB Row": {
+    howTo: "Set a bench to ~30° and lie face-down on it, chest supported, a dumbbell in each hand hanging down. Pull the dumbbells up by driving elbows back toward your hips, squeeze your shoulder blades, lower slowly. Chest stays on the bench — that protects your lower back.",
+    feel: "Mid-back and sides of your back. Chest support means your lower back does nothing — important while protecting your back.",
+    moves: "Elbows drive back toward hips. Shoulder blades squeeze together. Torso doesn't move.",
+    mistakes: ["Shrugging to your ears", "Chest coming off the bench", "Rowing to your chest instead of your hips"]
+  },
+  "Light Overhead DB Press": {
+    howTo: "Sitting or standing, a dumbbell in each hand at shoulder height (start ~5kg — the weight you tested pain-free). Press overhead to straight arms, lower under control to ear height. ONLY go as high/heavy as stays completely pain-free.",
+    feel: "Tops of your shoulders. A test-and-build lift — proving your shoulder handles overhead again, not lifting heavy.",
+    moves: "Dumbbells press straight up. Ribs stay down — don't arch your lower back.",
+    mistakes: ["Adding weight too fast", "Pushing into any pinch — stop if it hurts", "Arching your back to grind a rep"],
+    reintro: "Careful comeback lift. Pain-free during AND for 2 days after → keep it, add 1–2kg. Pain during or within 24h → drop to Landmine Press, retry in a week.",
+    sub: "Any discomfort? → Landmine Press (gentler angle). Your safe fallback."
+  },
+  "Landmine Press": {
+    howTo: "A 'landmine' is a barbell wedged into a corner/anchor so it pivots. Hold the free end at your shoulder with one hand, standing or half-kneeling. Press it forward and slightly up at an angle until your arm is straight, then return. The angle is much friendlier to your shoulder than straight overhead.",
+    feel: "Front and side of your shoulder, without the pinch straight-overhead pressing can cause.",
+    moves: "Arm presses up and forward on a diagonal. Torso upright — don't lean back.",
+    mistakes: ["Letting the bar go straight overhead", "Leaning back to push more weight", "Same-side arm as the kneeling knee — use the opposite"]
+  },
+  "Cable Lateral Raise": {
+    howTo: "Stand side-on to a cable at the lowest point, handle in the far hand. Lean slightly away. Raise your arm out to the side and slightly in front (about 30° forward of straight-out — gentler on the shoulder), thumb up, to shoulder height. Lower slowly.",
+    feel: "The side of your shoulder (the muscle that makes shoulders look broader). Constant tension from the cable.",
+    moves: "Arm raises out and slightly forward. Stop at shoulder height. Body still.",
+    mistakes: ["Raising straight out to the side or behind — keep slightly in front", "Shrugging up", "Swinging it up"]
+  },
+  "Seated Cable Row (neutral grip)": {
+    howTo: "Sit at the cable row (wedge cushion on the seat). Brace your feet, palms facing each other. Sit tall, pull the handle to your lower ribs by driving elbows straight back. Squeeze shoulder blades, return under control. Back stays straight.",
+    feel: "Mid-back and sides of your back, strong squeeze between the shoulder blades.",
+    moves: "Elbows drive straight back. Shoulder blades pull together. Torso mostly upright.",
+    mistakes: ["Rounding your lower back reaching forward", "Swinging your torso to move the weight", "Pulling to your chest instead of lower ribs"],
+    equipment: "Always use your wedge/coccyx cushion — the hard seat is bad for your tailbone."
+  },
+  "DB Curl": {
+    howTo: "Stand, a dumbbell in each hand at your sides, palms forward. Elbows pinned to your sides, curl up toward your shoulders, squeeze, lower all the way down.",
+    feel: "Front of your upper arms (biceps).",
+    moves: "Only forearms move. Upper arms stay still at your sides.",
+    mistakes: ["Swinging your body", "Elbows drifting forward", "Not lowering all the way"]
+  },
+  "Hammer Curl": {
+    howTo: "Like a dumbbell curl but palms face IN toward each other (holding two 'hammers') the whole time. Curl up, lower fully.",
+    feel: "Front and outer upper arm and forearm. Builds arm thickness.",
+    moves: "Forearms swing up and down, palms inward throughout. Upper arms still.",
+    mistakes: ["Swinging your body", "Rotating palms up as you lift", "Too heavy"]
+  },
+  "Cable Triceps Pushdown (rope)": {
+    howTo: "Set a rope high on a cable. Face it, grab the rope, tuck elbows tight to your sides. Push straight down to fully straight arms, spreading the rope slightly at the bottom. Return under control, elbows pinned.",
+    feel: "Back of your upper arms (triceps), especially at the bottom.",
+    moves: "Only forearms move. Elbows stay locked at your sides like hinges.",
+    mistakes: ["Elbows drifting forward/up", "Leaning over the weight", "Using momentum"]
+  },
+  "Overhead Cable Triceps Extension": {
+    howTo: "Set a rope low on a cable. Face away, hold the rope behind your head, elbows forward and slightly up, lean forward a little. Straighten your arms overhead, then bring hands back behind your head slowly.",
+    feel: "Back of your upper arms with a stretch at the bottom. The overhead position works the long part of the triceps that pushdowns miss.",
+    moves: "Only forearms move — extending overhead and back. Upper arms point forward.",
+    mistakes: ["Elbows flaring wide", "Too heavy", "Arching your lower back a lot"]
+  },
+  "Cable Rear-Delt Fly": {
+    howTo: "Set a single cable to about head height. Stand slightly forward, lean forward a little. With a slight elbow bend, sweep your arm back and out in a wide arc. Squeeze the back of your shoulder, return slowly.",
+    feel: "Back of your shoulder (rear deltoid). Keep the shoulder down, not shrugged.",
+    moves: "Arm sweeps back and out horizontally. Elbow stays slightly bent.",
+    mistakes: ["Bending the elbow more (becomes a row)", "Shrugging up", "Too heavy"]
+  },
+  "Leg Extension": {
+    howTo: "Sit in the leg extension machine (wedge cushion on the seat). The padded bar rests on your shins just above your ankles. Straighten your legs to lift the pad up, pause at the top, then lower slowly. This works your thighs with ZERO load through your spine — completely safe for your back.",
+    feel: "The front of your thighs (quads) working, with a strong squeeze at the top when your legs are straight.",
+    moves: "Only your knees straighten and bend. Your thighs and back stay still against the pads.",
+    mistakes: ["Swinging the weight up with momentum", "Doing half-reps — straighten fully", "Dropping the weight fast — lower slowly", "Skipping the wedge cushion"],
+    progression: "Top of the rep range on all sets with 1–2 reps left → add a plate/pin next session. Safe to push close to failure since there's no spine load."
+  },
+  "Lying Leg Curl": {
+    howTo: "Lie face-down on the leg curl machine, padded bar just above your heels. Curl your heels up toward your bum, pause, lower slowly. Use the face-DOWN machine, not seated. Like the leg extension, this works your hamstrings with no load on your spine.",
+    feel: "The back of your thighs (hamstrings) working, with a stretch at the bottom.",
+    moves: "Your knees bend to bring heels up. Your hips stay flat on the pad — don't let them lift.",
+    mistakes: ["Hips rising off the pad (strains the lower back)", "Too much weight, losing range", "Dropping the weight fast"],
+    progression: "Top of the rep range on all sets → add load next session. Spine-safe, so you can train it close to failure."
+  },
+  "Standing Calf Raise": {
+    howTo: "Stand with the balls of your feet on a step or platform, heels hanging off. Rise up as high as you can onto your toes, pause at the top, then lower your heels as far below the step as they'll go for a full stretch. 2 seconds up, 2 seconds down.",
+    feel: "Your calves working, with a strong stretch at the bottom (the stretch is the important part).",
+    moves: "You rise onto your toes and lower heels below the step — full range each rep.",
+    mistakes: ["Bouncing at the bottom instead of stretching", "Tiny half-reps", "Not pausing at the top"],
+    progression: "Calves respond to volume and full stretch — add reps freely, then load."
+  },
+  "Single-Leg Balance": {
+    howTo: "Stand on one leg, slight knee bend, standing tall. Actively grip the floor with three points of your foot: big toe, little toe, heel (your 'foot tripod' — stops your flat foot rolling inward). Hold 30 seconds. Harder versions as you improve: (1) eyes closed, (2) on a foam pad, (3) both. Do it barefoot or in socks so the foot does the work.",
+    feel: "Your foot, ankle, and hip making constant tiny adjustments — especially the side of your hip. This is the exact stability your physio flagged, and it directly fights your foot rolling inward.",
+    moves: "You try to stay still. The work is invisible — small constant corrections.",
+    mistakes: ["Clawing hard with toes — spread them, use the whole tripod", "Holding onto something (light fingertip only, on the hardest levels)", "Picking a version too easy"],
+    progression: "Concrete rule: hold 30 seconds with NO hand support and minimal wobble, for 3 sessions in a row → move to the next level (eyes closed, then foam pad)."
+  },
+  "SL Sit to Stand": {
+    howTo: "Sit on a firm chair/bench (wedge cushion). Lift one leg out in front, off the floor. Lean your torso forward slightly, then stand up using ONLY the planted leg, driving through your heel. Lower back down slowly under control of that one leg — don't drop. 'SL' = single leg.",
+    feel: "The glute and thigh of your standing leg, plus a real balance challenge. Builds the single-leg control you're missing.",
+    moves: "You lean forward and stand by straightening one hip and knee. Keep that knee pointing over your second toe — don't let it cave in (your flat feet make it want to).",
+    mistakes: ["Bouncing up with momentum", "Knee caving inward — push it out toward your little toe", "Dropping down fast", "Seat too low — start higher, lower it over weeks"],
+    progression: "Bodyweight first. Master slow controlled reps both legs before holding light dumbbells."
+  },
+  "Forward Step-Up": {
+    howTo: "Stand in front of a box/bench (start around knee height or lower). Place your right foot fully on top. Drive through that whole foot to stand all the way up. Lightly tap your left foot up top, then lower SLOWLY, controlled by the right leg. All reps one side, then switch.",
+    feel: "The glute and thigh of the leg on the box, plus the side of your hip keeping you steady.",
+    moves: "The leg on the box does all the lifting. The other foot just taps. Stay upright.",
+    mistakes: ["Pushing off the bottom foot to help — the top leg does everything", "Knee on the box caving inward", "Stepping down fast — slow lowering builds control"],
+    progression: "Lower box + bodyweight first. Progress: higher box → light dumbbells → heavier."
+  },
+  "Single-Leg RDL": {
+    howTo: "Stand on one leg, slight knee bend. Hinge forward at the HIP — push your hips back and let your chest tip forward, back flat — while your free leg lifts straight behind you as a counterweight. Lower until you feel a stretch in the back of your standing thigh, then drive your hips forward to stand. Hold a pole lightly for balance while learning. 'Hip hinge' = bending at the hips, not the waist.",
+    feel: "Back of your standing thigh (hamstring) stretching, glute pulling you up. Your hip works hard for balance — that's the stability goal.",
+    moves: "Hips push back, chest tips forward (the hinge). Back stays flat. Hips stay level — don't let one side drop or twist open.",
+    mistakes: ["Rounding your lower back — if it rounds, don't go as low", "Hips twisting open toward the lifted leg — keep them level", "Squatting instead of hinging at the hip"],
+    progression: "Bodyweight (hold support if wobbly) → light dumbbell once steady. Balance before load."
+  },
+  "Side Plank + Hip Abduction": {
+    howTo: "Set up a side plank on your forearm (elbow under shoulder), hips lifted into a straight line. HOLDING that, lift your top leg toward the ceiling about 30°, then lower — keep your hips lifted the whole time, don't let them drop between reps. 'Abduction' = lifting the leg out away from your body.",
+    feel: "The side of your top hip working hard to lift the leg, AND the side of your bottom hip working to hold the plank. Trains the key hip-stabilising muscle (gluteus medius) more than almost anything.",
+    moves: "Top leg lifts and lowers. Hips stay up in a straight line — they don't sag between reps.",
+    mistakes: ["Dropping your hips between reps — keep the plank held", "Top hip rolling backward", "Propping on your hand instead of forearm"]
+  },
+  "Banded Lateral Walk": {
+    howTo: "Loop a band just above your knees (or ankles for harder). Bend into a quarter-squat, hands at hips. Step sideways with your lead leg, follow with the trailing leg — keep band tension the whole time. 10 steps one way, 10 back.",
+    feel: "Sides of your hips and glutes burning. Keep knees pushed out over your toes — don't let them cave in.",
+    moves: "Step sideways staying low. Hips stay level and facing forward.",
+    mistakes: ["Trailing leg snapping in — control it", "Standing up tall", "Knees caving inward"]
+  },
+  "Glute Bridge (banded)": {
+    howTo: "Loop a band just above your knees. Lie on your back, knees bent, feet flat hip-width. Push your knees outward against the band, drive through your heels, lift your hips to a straight line from knees to shoulders. Squeeze your glutes, hold a second, lower slowly. Keep pushing knees out the whole time.",
+    feel: "Your glutes (main and side hip muscles, from the band push-out). Keep your ribs down — don't arch.",
+    moves: "Hips lift and lower. Knees press outward against the band throughout.",
+    mistakes: ["Pushing through your toes", "Arching your lower back at the top", "Knees collapsing inward"]
+  },
+  "Cat-Cow": {
+    howTo: "On hands and knees. 'Cat': breathe out, round your back up, tuck chin and tailbone. 'Cow': breathe in, let your belly drop, lift head and tailbone gently. Flow slowly, breath sets the pace.",
+    feel: "A gentle, pleasant mobilising of your whole spine.",
+    moves: "Whole spine waves from neck to tailbone. In for cow, out for cat.",
+    mistakes: ["Only moving the neck or lower back", "Forcing it", "Holding your breath"]
+  },
+  "Clamshell": {
+    howTo: "Lie on your side, hips and knees stacked, knees bent ~45°, feet together. Keeping feet touching, rotate your top knee open toward the ceiling like a clam — WITHOUT rolling your hips back. Lower slowly. Band above knees for more.",
+    feel: "Side of your top hip (gluteus medius). Hips and pelvis stay still.",
+    moves: "Only the top knee rotates open and closed. Pelvis doesn't move.",
+    mistakes: ["Rolling hips back to open further", "Rushing", "Feet coming apart"]
+  },
+  "Hip Hike": {
+    howTo: "Stand sideways on a step, one foot on it, the other leg hanging off the edge. Let the hanging-side hip drop a little, then lift it by squeezing the side of the hip you're STANDING on. Small movement driven by the standing hip.",
+    feel: "Side of your standing hip — the muscle that keeps your pelvis level when you walk.",
+    moves: "Pelvis tilts down and up at the hip. Standing leg stays straight.",
+    mistakes: ["Bending the standing knee", "Using your lower back instead of the hip", "Rushing"]
+  },
+  "McGill Curl-Up": {
+    howTo: "Lie on your back. Bend ONE knee with that foot flat; keep the other leg straight. Slide both hands palms-down UNDER your lower back (keeps your spine safe). Lift just your head and shoulders ~2cm off the floor — barely any movement — hold 8–10s. NOT a sit-up. Do 5 reps, rest, 3, rest, 1.",
+    feel: "A deep, hard brace through your stomach — while your lower back stays still. Think 'stiffen', not 'crunch'.",
+    moves: "Only head and shoulders lift slightly. Your lower back does NOT flatten or round.",
+    mistakes: ["Curling up like a sit-up — lower back must NOT round", "Lifting too high", "Pulling on your neck"]
+  },
+  "Bird-Dog": {
+    howTo: "On hands and knees, hands under shoulders, knees under hips. Reach your right arm forward and left leg back at the same time, level with your body. Hold 2s. Return slowly, switch. Keep your back flat and still like a table.",
+    feel: "Deep muscles along your spine and the reaching-leg glute keeping you steady. The challenge is staying still — no twisting.",
+    moves: "One arm and the opposite leg extend slowly. Everything else stays completely still.",
+    mistakes: ["Lower back sagging or hips twisting — reach less far", "Leg too high (arches the back)", "Rushing"]
+  },
+  "Dead Bug": {
+    howTo: "Lie on your back, arms pointing at the ceiling, knees bent over your hips (like a dead bug). Press your lower back into the floor. Slowly lower your right arm overhead and straighten your left leg toward the floor — keeping your lower back flat. Return, switch sides.",
+    feel: "Deep stomach muscles working to stop your back arching as your limbs move. Looks easy, isn't.",
+    moves: "Opposite arm and leg extend slowly. Lower back stays pressed flat the whole time.",
+    mistakes: ["Lower back arching off the floor — go less far", "Moving fast", "Holding your breath"]
+  },
+  "Side Plank (left side)": {
+    howTo: "Lie on your left side, prop on your left forearm, elbow under your shoulder. Stack or stagger your feet. Lift your hips so your body is a straight line head-to-feet. Hold. Start from your knees if needed. Both sides fine now your shoulder's cleared.",
+    feel: "The side of your midsection (obliques) and hip holding the line.",
+    moves: "Nothing moves — a hold. Resist letting the hips sag.",
+    mistakes: ["Hips dropping", "Head/neck dropping", "On your hand instead of forearm"]
+  },
+  "Pallof Press": {
+    howTo: "Set a cable to chest height. Stand side-on, feet shoulder-width. Hold the handle at the middle of your chest with both hands. Press your hands straight out until arms are straight, hold a second or two, return to your chest. The cable tries to twist you toward it — your job is to NOT let it. This is 'anti-rotation' = resisting a twist.",
+    feel: "Deep muscles around your midsection fighting to stop your body twisting. You'll feel the side facing the machine.",
+    moves: "Only your arms move out and back. Torso stays square, refusing to twist.",
+    mistakes: ["Standing too close (no twist to resist)", "Letting your torso rotate — use less weight", "Too heavy so it becomes a chest press"]
+  },
+  "Copenhagen Plank": {
+    howTo: "Lie on your left side. Rest your TOP leg on a bench — bench under your knee (easier) or ankle (harder). Prop on your left forearm. Lift your hips into a straight line, bottom leg hovering. Hold.",
+    feel: "Inner thigh of your top leg working hard, plus the side of your midsection. A tough stability hold.",
+    moves: "A hold — hips up, body straight.",
+    mistakes: ["Hips sagging", "On your hand instead of forearm", "Ankle on the bench too soon — start with the knee"]
+  },
+  "Piriformis Figure-4 Stretch": {
+    howTo: "Lie on your back, both knees bent. Cross your right ankle over your left knee (legs make a '4'). Reach through and gently pull your left thigh toward your chest until you feel a stretch deep in your right buttock. Hold 30s, switch. Flex the crossed foot to protect the knee.",
+    feel: "A deep stretch in your buttock and outer hip — relevant to your symptoms.",
+    moves: "Nothing during the hold — set it gently, breathe, relax in.",
+    mistakes: ["Yanking hard — go gently given your buttock pain", "Not flexing the crossed foot", "Holding your breath"]
+  },
+  "Child's Pose": {
+    howTo: "Kneel, sit your hips back toward your heels, reach your arms forward along the floor, let your chest sink. Rest your forehead down. Breathe slowly, let your back and hips relax. Hold 30–60s.",
+    feel: "A gentle stretch through your lower back, hips, and shoulders. Calming — a good way to downshift.",
+    moves: "Nothing — a relaxed hold. Breathe and soften.",
+    mistakes: ["Forcing hips to heels if tight — go as far as comfy", "Holding tension", "Rushing the breath"]
+  },
+  "Diaphragmatic Breathing": {
+    howTo: "Lie on your back, knees bent, one hand on your chest, one on your belly. Breathe in slowly through your nose for 4s so your BELLY rises (not your chest), then out slowly through your mouth for 6s, relaxing everything — including your pelvic floor (let it gently 'let go' rather than squeeze). 1–2 minutes. Doubles as your daily pelvic floor relaxation.",
+    feel: "Calm. Belly rising and falling. A deliberate release of tension through your midsection and pelvic floor.",
+    moves: "Only your belly rises and falls. Chest stays fairly still.",
+    mistakes: ["Breathing into your chest", "Squeezing the pelvic floor — this is about RELAXING it, not Kegels", "Rushing the out-breath"]
+  },
+};
+
+const dailyHabits = [
+  "Pelvic floor down-training: 5 min belly breathing + letting the pelvic floor relax, 1–2× daily (cooldown breathing counts)",
+  "Walk 20–30 min daily — best recovery tool you have",
+  "Wedge / U-cushion when sitting — always",
+  "Protein ~175g/day to rebuild muscle lost in your cut; eat at least at maintenance",
+  "Footwear: firm flat shoe + orthotics for lifting · barefoot for balance drills · Hoka for walking",
+  "Note what helps/worsens pain for your MRI follow-up (meloxicam response is useful data)",
+];
+
+const FULL_PRIMER = [
+  { name: "Wall Slide", detail: "2 × 10" },
+  { name: "Band ER at 0°", detail: "2 × 12 / side" },
+  { name: "Prone Y", detail: "2 × 10, 0.5–1kg" },
+  { name: "Light Face Pull", detail: "2 × 12, light" },
+  { name: "Doorway Pec Stretch", detail: "30s / side" },
+  { name: "Foam Roller T-Spine Extension", detail: "60s" },
+];
+const MINI_PRIMER = [
+  { name: "Prone Y", detail: "2 × 10, 0.5–1kg" },
+  { name: "Band ER at 0°", detail: "2 × 12 / side" },
+];
+const COOLDOWN = [
+  { name: "Piriformis Figure-4 Stretch", detail: "30s / side" },
+  { name: "Child's Pose", detail: "30–60s" },
+  { name: "Diaphragmatic Breathing", detail: "1–2 min" },
+];
+
+const stabilityLevels = [
+  { level: "L1", name: "Balance", color: "#5BB85D", detail: "Single-leg stand 30s → eyes closed → on foam. Rule: hold 30s, no hand support, minimal wobble, 3 sessions running → progress." },
+  { level: "L2", name: "Controlled movement", color: "#E8A838", detail: "Sit-to-stand, step-ups, single-leg RDL — bodyweight, slow. Light support if wobbly." },
+  { level: "L3", name: "Loaded", color: "#E8643A", detail: "Add light dumbbells to L2 — only once stable and pain-free." },
+];
+
+const days = [
+  {
+    id: "upper-a", label: "UPPER A", focus: "Full Upper Body", color: "#4A90D9",
+    schedule: "Mon", duration: "~40 min", primer: "full",
+    blocks: [
+      { type: "A1", label: "Press", rest: "90s · RIR 2–3", exercises: [
+        { name: "Incline DB Press (≤30°)", sets: "4", reps: "8–10", rir: "2–3", note: "Main chest lift" },
+      ]},
+      { type: "A2", label: "Vertical pull", rest: "90s · RIR 2–3", exercises: [
+        { name: "Weighted Chin-Up", sets: "4", reps: "5–8", rir: "2–3", note: "Or lat pulldown" },
+      ]},
+      { type: "B", label: "Superset · 3 rounds", rest: "75s · RIR 1–2", exercises: [
+        { name: "Light Overhead DB Press", sets: "3", reps: "10–12", note: "⚠ Shoulder reintro — pain-free only", reintro: true },
+        { name: "Chest-Supported DB Row", sets: "3", reps: "10", note: "Chest stays on bench" },
+      ]},
+      { type: "C", label: "Superset · 3 rounds", rest: "60s · RIR 0–1", exercises: [
+        { name: "Cable Lateral Raise", sets: "3", reps: "12–15", note: "Side delts" },
+        { name: "Cable Triceps Pushdown (rope)", sets: "3", reps: "12–15", note: "Triceps" },
+      ]},
+    ]
+  },
+  {
+    id: "stability-a", label: "STABILITY A", focus: "Single-Leg + Legs + Core", color: "#5BB85D",
+    schedule: "Tue", duration: "~40 min", primer: "mini", isStability: true,
+    gluteWarmup: [
+      { name: "Cat-Cow", detail: "2 × 10 breaths" },
+      { name: "Banded Lateral Walk", detail: "2 × 10 each way" },
+    ],
+    blocks: [
+      { type: "A1", label: "Balance first", rest: "between sides", exercises: [
+        { name: "Single-Leg Balance", sets: "3", reps: "30s / leg", note: "⭐ Find your level (panel)", priority: true },
+      ]},
+      { type: "A2", label: "Single-leg movement", rest: "90s", exercises: [
+        { name: "SL Sit to Stand", sets: "3", reps: "8 / leg", note: "Knee over 2nd toe", priority: true },
+      ]},
+      { type: "B", label: "Superset · legs (spine-safe) · 3 rounds", rest: "75s · RIR 1–2", exercises: [
+        { name: "Leg Extension", sets: "3", reps: "12–15", note: "Quads — zero spine load", leg: true },
+        { name: "Lying Leg Curl", sets: "3", reps: "12", note: "Hamstrings — face-down", leg: true },
+      ]},
+      { type: "C", label: "Superset · 3 rounds", rest: "60s", exercises: [
+        { name: "Side Plank + Hip Abduction", sets: "3", reps: "10 / side", note: "Hips stay up" },
+        { name: "Standing Calf Raise", sets: "3", reps: "15", note: "Full stretch", leg: true },
+      ]},
+      { type: "D", label: "Core triset · 2 rounds", rest: "45s", exercises: [
+        { name: "McGill Curl-Up", sets: "2", reps: "5-3-1", note: "Not a sit-up", core: true },
+        { name: "Dead Bug", sets: "2", reps: "8 / side", note: "Back stays flat", core: true },
+      ]},
+    ]
+  },
+  {
+    id: "upper-b", label: "UPPER B", focus: "Full Upper Body", color: "#9B59B6",
+    schedule: "Thu", duration: "~40 min", primer: "full",
+    blocks: [
+      { type: "A1", label: "Press", rest: "90s · RIR 2–3", exercises: [
+        { name: "Landmine Press", sets: "4", reps: "8–10", rir: "2–3", note: "Shoulder-safe press" },
+      ]},
+      { type: "A2", label: "Horizontal pull", rest: "90s · RIR 2–3", exercises: [
+        { name: "Seated Cable Row (neutral grip)", sets: "4", reps: "8–10", rir: "2–3", note: "Coccyx cushion" },
+      ]},
+      { type: "B", label: "Superset · 3 rounds", rest: "75s · RIR 1–2", exercises: [
+        { name: "Cable Crossover", sets: "3", reps: "12–15", note: "Chest" },
+        { name: "Lat Pulldown (neutral grip)", sets: "3", reps: "10–12", note: "Back width" },
+      ]},
+      { type: "C", label: "Superset · 3 rounds", rest: "60s · RIR 0–1", exercises: [
+        { name: "Cable Lateral Raise", sets: "3", reps: "12–15", note: "Side delts" },
+        { name: "Hammer Curl", sets: "3", reps: "10–12", note: "Biceps / forearm" },
+      ]},
+    ]
+  },
+  {
+    id: "stability-b", label: "STABILITY B", focus: "Single-Leg + Legs + Core", color: "#E8A838",
+    schedule: "Fri", duration: "~40 min", primer: "mini", isStability: true,
+    gluteWarmup: [
+      { name: "Cat-Cow", detail: "2 × 10 breaths" },
+      { name: "Banded Lateral Walk", detail: "2 × 10 each way" },
+    ],
+    blocks: [
+      { type: "A1", label: "Balance first", rest: "between sides", exercises: [
+        { name: "Single-Leg Balance", sets: "3", reps: "30s / leg", note: "⭐ Progress when criteria met", priority: true },
+      ]},
+      { type: "A2", label: "Single-leg movement", rest: "90s", exercises: [
+        { name: "Forward Step-Up", sets: "3", reps: "8 / leg", note: "Slow down, knee out", priority: true },
+      ]},
+      { type: "B", label: "Superset · legs (spine-safe) · 3 rounds", rest: "75s · RIR 1–2", exercises: [
+        { name: "Leg Extension", sets: "3", reps: "12–15", note: "Quads — zero spine load", leg: true },
+        { name: "Single-Leg RDL", sets: "3", reps: "8 / leg", note: "Hamstring + balance", priority: true },
+      ]},
+      { type: "C", label: "Superset · 3 rounds", rest: "60s", exercises: [
+        { name: "Side Plank + Hip Abduction", sets: "3", reps: "10 / side", note: "Top hip priority" },
+        { name: "Standing Calf Raise", sets: "3", reps: "15", note: "Full stretch", leg: true },
+      ]},
+      { type: "D", label: "Core triset · 2 rounds", rest: "45s", exercises: [
+        { name: "Copenhagen Plank", sets: "2", reps: "20s / side", note: "Top leg on bench", core: true },
+        { name: "Pallof Press", sets: "2", reps: "10 / side", note: "Anti-twist", core: true },
+      ]},
+    ]
+  },
+  {
+    id: "hip-circuit", label: "HIP CIRCUIT", focus: "Glute Med Standalone (Optional)",
+    color: "#9AA0A6", schedule: "Wed / Sat", duration: "8–12 min", primer: "none", isOptional: true,
+    blocks: [
+      { type: "CIRCUIT", label: "2 rounds · 30s rest between", rest: "Move through all 5",
+        exercises: [
+          { name: "Banded Lateral Walk", sets: "2", reps: "10 / dir" },
+          { name: "Clamshell", sets: "2", reps: "15 / side" },
+          { name: "Side Plank + Hip Abduction", sets: "2", reps: "10 / side" },
+          { name: "Glute Bridge (banded)", sets: "2", reps: "15" },
+          { name: "Hip Hike", sets: "2", reps: "10 / side" },
+        ]},
+    ]
+  },
+];
+
+const guideContent = [
+  {
+    title: "🚦 What phase is this?",
+    items: [
+      { label: "Current", text: "Stability & reintroduction. Heavy AXIAL loading (load through the spine — barbell squat, deadlift) is parked until your buttock MRI. But spine-SAFE leg machines (leg extension, leg curl, calf raise) are in — they build leg muscle with zero spinal load." },
+      { label: "Why this way", text: "Earlier versions parked your legs entirely, which let them keep shrinking after your cut for no reason. Machine leg work fixes that without touching the thing we're protecting." },
+      { label: "Upper body", text: "Two FULL UPPER days = chest, back, shoulders, arms each trained 2×/week — enough to grow." },
+      { label: "Next", text: "Once the MRI clears things, heavy hinge/squat patterns return and we shift toward full strength + size." },
+    ]
+  },
+  {
+    title: "🦶 Single-leg stability levels",
+    items: [
+      { label: "L1 balance", text: "Single-leg stand 30s → eyes closed → foam pad. PROGRESS RULE: 30s, no hand support, minimal wobble, 3 sessions in a row." },
+      { label: "L2 movement", text: "Sit-to-stand, step-ups, single-leg RDL — bodyweight, slow." },
+      { label: "L3 load", text: "Add light dumbbells to L2 — only once stable and pain-free." },
+      { label: "Foot tripod", text: "On every single-leg move, grip the floor with big toe + little toe + heel. Stops your flat foot rolling in. Balance drills barefoot." },
+    ]
+  },
+  {
+    title: "🦵 Why machine legs are safe",
+    items: [
+      { label: "The logic", text: "Your back is the unknown, so we avoid loading THROUGH the spine. Leg extension, lying leg curl, and calf raise load the leg muscles directly with no spinal compression — safe to push close to failure." },
+      { label: "What we still avoid", text: "Barbell squat, deadlift, leg press with hips rolling under — anything that compresses or shears the spine. Those wait for the MRI." },
+    ]
+  },
+  {
+    title: "💪 Shoulder reintroduction",
+    items: [
+      { label: "24h rule", text: "Light overhead press pain-free during AND 24–48h after → keep it, add 1–2kg. Pain during or within 24h → drop to landmine press, retry in a week." },
+      { label: "Why slow", text: "The tear is old and structural; you're training the muscles that compensate, not regrowing tendon." },
+    ]
+  },
+  {
+    title: "🌡️ Symptom monitoring",
+    items: [
+      { label: "OK", text: "Muscle soreness 24–48h after. Mild stiffness fading by next session." },
+      { label: "Pause", text: "Buttock/back pain worse next day. Sharp shoulder pain at a point. Tailbone pain 24h+." },
+      { label: "Stop & see doctor", text: "Leg numbness/tingling. Loss of strength or feeling. New or worsening pain. Note for your MRI follow-up." },
+      { label: "Meloxicam", text: "Can mask pain that should stop you. Don't rely on 'feels fine on it' alone — watch movement and next-day response." },
+    ]
+  },
+  {
+    title: "🍗 Nutrition for rebuilding",
+    items: [
+      { label: "Protein", text: "~175g/day (80kg, post-cut, rebuilding — aim high). Spread over 3–4 meals." },
+      { label: "Calories", text: "To rebuild muscle, eat at least maintenance, ideally a small surplus. Still eating in a deficit out of habit will blunt progress." },
+      { label: "Muscle memory", text: "Muscle you've had before returns faster than building it new. Post-cut, you're primed to regain quickly." },
+    ]
+  },
+];
+
+function ProgramViewer() {
+  const [activeDay, setActiveDay] = useState(0);
+  const [openExercise, setOpenExercise] = useState(null);
+  const [primerOpen, setPrimerOpen] = useState(false);
+  const [cooldownOpen, setCooldownOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [levelsOpen, setLevelsOpen] = useState(false);
+  const day = days[activeDay];
+  const toggleEx = (name) => setOpenExercise(prev => prev === name ? null : name);
+  const primerList = day.primer === "full" ? FULL_PRIMER : day.primer === "mini" ? MINI_PRIMER : null;
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#0A0A0A", color: "#F5F5F5", paddingBottom: 60, maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ padding: "20px 16px 0", borderBottom: `4px solid ${day.color}`, transition: "border-color 0.3s" }}>
+        <div style={{ fontSize: 14, color: "#D5D5D5", marginBottom: 12, fontWeight: 600 }}>Stability & reintroduction phase · tap any exercise for a plain-english guide</div>
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 6 }}>
+          {days.map((d, i) => (
+            <button key={i} onClick={() => { setActiveDay(i); setOpenExercise(null); setPrimerOpen(false); setCooldownOpen(false); }}
+              style={{ background: activeDay === i ? d.color : "#1A1A1A", color: activeDay === i ? "#000" : "#E0E0E0", border: `2px solid ${activeDay === i ? d.color : "#2A2A2A"}`, borderRadius: 8, padding: "10px 14px", cursor: "pointer", fontSize: 15, fontWeight: activeDay === i ? 800 : 600, whiteSpace: "nowrap", flexShrink: 0 }}>
+              {d.isOptional ? "⚪ " : ""}{d.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "18px 16px 0" }}>
+        <div style={{ background: `linear-gradient(135deg, ${day.color}22, transparent)`, border: `2px solid ${day.color}55`, borderRadius: 12, padding: "16px 18px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: day.color, lineHeight: 1.1 }}>{day.label}</div>
+              <div style={{ fontSize: 17, color: "#E0E0E0", marginTop: 5, fontWeight: 500 }}>{day.focus}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 15, color: "#D5D5D5", fontWeight: 700 }}>{day.schedule}</div>
+              <div style={{ fontSize: 15, color: "#BBB", marginTop: 3 }}>{day.duration}</div>
+              <div style={{ fontSize: 14, color: day.color, marginTop: 4, fontWeight: 700 }}>{day.primer === "full" ? "Full primer" : day.primer === "mini" ? "Mini primer" : "No primer"}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: "14px 16px 0" }}>
+        <div style={{ background: "#2A1F08", border: "2px solid #5A4515", borderRadius: 10, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 22 }}>🅿️</span>
+          <div style={{ fontSize: 15, color: "#E8D5A8", lineHeight: 1.55 }}>
+            <strong style={{ color: "#E8A838" }}>Parked until MRI:</strong> barbell squat, deadlift, anything loading through the spine. Machine leg work (no spinal load) is IN. Lower-body strength is in maintenance; we build what's safe.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: "16px 16px 0" }}>
+        <CollapseButton open={guideOpen} setOpen={setGuideOpen} icon="📖" title="Program guide" sub="Phase · safe legs · levels · shoulder · nutrition" accent="#7AB8FF" />
+        {guideOpen && (
+          <div style={{ background: "#0E1620", border: "2px solid #1E2A3A", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -10, padding: "14px 16px" }}>
+            {guideContent.map((section, i) => (
+              <div key={i} style={{ marginBottom: i < guideContent.length - 1 ? 18 : 0, paddingBottom: i < guideContent.length - 1 ? 16 : 0, borderBottom: i < guideContent.length - 1 ? "1px solid #1A2233" : "none" }}>
+                <div style={{ fontSize: 17, color: "#7AB8FF", fontWeight: 800, marginBottom: 10 }}>{section.title}</div>
+                {section.items.map((item, j) => (
+                  <div key={j} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 14, color: "#7AB8FF", fontWeight: 700, marginBottom: 3 }}>{item.label}</div>
+                    <div style={{ fontSize: 16, color: "#E5E5E5", lineHeight: 1.55 }}>{item.text}</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {day.isStability && (
+        <div style={{ padding: "12px 16px 0" }}>
+          <CollapseButton open={levelsOpen} setOpen={setLevelsOpen} icon="🦶" title="Single-leg stability levels" sub="Find your level before loading" accent="#5BB85D" />
+          {levelsOpen && (
+            <div style={{ background: "#0C1A0C", border: "2px solid #1A2A1A", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -10, padding: "14px 16px" }}>
+              {stabilityLevels.map((lvl, i) => (
+                <div key={i} style={{ display: "flex", gap: 14, padding: "10px 0", borderBottom: i < stabilityLevels.length - 1 ? "1px solid #182218" : "none", alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 17, color: lvl.color, fontWeight: 800, minWidth: 30 }}>{lvl.level}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 16, color: lvl.color, fontWeight: 800 }}>{lvl.name}</div>
+                    <div style={{ fontSize: 15, color: "#D5D5D5", lineHeight: 1.55, marginTop: 3 }}>{lvl.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {primerList && (
+        <div style={{ padding: "12px 16px 0" }}>
+          <CollapseButton open={primerOpen} setOpen={setPrimerOpen} icon="🩺"
+            title={day.primer === "full" ? "Full primer · 8 min" : "Mini primer · 3 min"}
+            sub={day.primer === "full" ? "Shoulder & upper-back prep" : "Cuff maintenance"} accent="#BBB" />
+          {primerOpen && (
+            <div style={{ background: "#101010", border: "2px solid #232323", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -10, padding: "8px 4px" }}>
+              {primerList.map((p, i) => (
+                <ExRow key={i} exercise={{ name: p.name, prescription: p.detail }} color="#BBB" open={openExercise} onToggle={toggleEx} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {day.gluteWarmup && (
+        <div style={{ padding: "16px 16px 0" }}>
+          <Section label="Glute warm-up" sublabel="2 min" color={day.color}>
+            {day.gluteWarmup.map((g, i) => (
+              <ExRow key={i} exercise={{ name: g.name, prescription: g.detail }} color={day.color} open={openExercise} onToggle={toggleEx} />
+            ))}
+          </Section>
+        </div>
+      )}
+
+      <div style={{ padding: "16px 16px 0" }}>
+        {day.blocks.map((block, i) => (
+          <BlockCard key={i} block={block} color={day.color} open={openExercise} onToggle={toggleEx} />
+        ))}
+      </div>
+
+      {!day.isOptional && (
+        <div style={{ padding: "4px 16px 0" }}>
+          <CollapseButton open={cooldownOpen} setOpen={setCooldownOpen} icon="🧘" title="Cool-down · 3 min" sub="Hip release + breathing (counts as pelvic floor work)" accent="#7DC272" />
+          {cooldownOpen && (
+            <div style={{ background: "#0C1A0C", border: "2px solid #1A2A1A", borderTop: "none", borderRadius: "0 0 10px 10px", marginTop: -10, padding: "8px 4px" }}>
+              {COOLDOWN.map((c, i) => (
+                <ExRow key={i} exercise={{ name: c.name, prescription: c.detail }} color="#7DC272" open={openExercise} onToggle={toggleEx} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div style={{ padding: "28px 16px 0" }}>
+        <div style={{ fontSize: 14, color: "#999", marginBottom: 10, fontWeight: 700 }}>WEEKLY SCHEDULE</div>
+        <div style={{ display: "flex", gap: 5 }}>
+          {[
+            { d: "MON", id: "upper-a" },
+            { d: "TUE", id: "stability-a" },
+            { d: "WED", id: "hip-circuit", optional: true },
+            { d: "THU", id: "upper-b" },
+            { d: "FRI", id: "stability-b" },
+            { d: "SAT", id: "hip-circuit", optional: true },
+            { d: "SUN", id: null },
+          ].map((s, i) => {
+            const refDay = days.find(d => d.id === s.id);
+            return (
+              <div key={i} style={{ flex: 1, minWidth: 0, background: "#141414", borderTop: `4px solid ${refDay ? refDay.color : "#3A3A3A"}`, borderRadius: 4, padding: "8px 3px", textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#BBB", fontWeight: 700 }}>{s.d}</div>
+                <div style={{ fontSize: 11, color: refDay ? refDay.color : "#666", marginTop: 4, fontWeight: 700 }}>
+                  {!s.id ? "REST" : s.optional ? "Hip ⚪" : refDay.label.replace("UPPER ", "U-").replace("STABILITY ", "St-")}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ padding: "24px 16px 0" }}>
+        <div style={{ fontSize: 16, color: "#7DC272", marginBottom: 10, fontWeight: 800 }}>🌿 Daily habits</div>
+        <div style={{ background: "#0E1A0E", border: "2px solid #1A2A1A", borderRadius: 10, padding: "14px 16px" }}>
+          {dailyHabits.map((h, i) => (
+            <div key={i} style={{ fontSize: 15, color: "#E0E0E0", padding: "9px 0", borderBottom: i < dailyHabits.length - 1 ? "1px solid #182818" : "none", lineHeight: 1.55 }}>— {h}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CollapseButton({ open, setOpen, icon, title, sub, accent }) {
+  return (
+    <button onClick={() => setOpen(o => !o)}
+      style={{ width: "100%", background: "#141414", border: `2px solid ${open ? accent : "#262626"}`, borderRadius: open ? "10px 10px 0 0" : 10, padding: "14px 16px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, textAlign: "left" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 17, color: accent, fontWeight: 800 }}>{icon} {title}</div>
+        <div style={{ fontSize: 14, color: "#BBB", marginTop: 3 }}>{sub}</div>
+      </div>
+      <span style={{ fontSize: 20, color: accent, fontWeight: 800, flexShrink: 0 }}>{open ? "▲" : "▼"}</span>
+    </button>
+  );
+}
+
+function BlockCard({ block, color, open, onToggle }) {
+  const isA = block.type === "A1" || block.type === "A2";
+  const accentColor = isA ? color : "#C5C5C5";
+  return (
+    <div style={{ marginBottom: 16, background: isA ? `linear-gradient(135deg, ${color}18, #111 50%)` : "#121212", border: `2px solid ${isA ? `${color}55` : "#262626"}`, borderLeft: `6px solid ${isA ? color : "#3A3A3A"}`, borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid #232323", background: isA ? "transparent" : "#1A1A1A" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: isA ? color : "#FFF" }}>{block.type}</span>
+            <span style={{ fontSize: 15, color: "#D5D5D5", fontWeight: 600 }}>{block.label}</span>
+          </div>
+          <span style={{ fontSize: 14, color: "#BBB", fontWeight: 500 }}>{block.rest}</span>
+        </div>
+      </div>
+      {block.exercises.map((ex, i) => {
+        const isLast = i === block.exercises.length - 1;
+        const info = EX[ex.name];
+        const isOpen = open === ex.name;
+        return (
+          <div key={i} style={{ borderBottom: isLast ? "none" : "1px solid #1F1F1F" }}>
+            <div onClick={() => info && onToggle(ex.name)} style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10, cursor: info ? "pointer" : "default", minHeight: 44 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {ex.priority && <span style={{ fontSize: 18 }}>⭐</span>}
+                {ex.reintro && <span style={{ fontSize: 18 }}>⚠️</span>}
+                {ex.core && <span style={{ fontSize: 16 }}>🧱</span>}
+                {ex.leg && <span style={{ fontSize: 16 }}>🦵</span>}
+                <span style={{ fontSize: 18, color: isOpen ? color : "#FFF", fontWeight: (ex.priority || ex.reintro) ? 800 : 700 }}>{ex.name}</span>
+                {info && <span style={{ fontSize: 14, color: isOpen ? color : "#999", fontWeight: 700 }}>{isOpen ? "▲" : "▼"}</span>}
+              </div>
+              <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <Pill label="Sets" value={ex.sets} color={color} />
+                <Pill label="Reps" value={ex.reps} color={color} />
+                {ex.rir && <Pill label="RIR" value={ex.rir} color={color} />}
+              </div>
+              {ex.note && <div style={{ fontSize: 15, color: ex.reintro ? "#FFD27A" : "#D0D0D0", marginTop: 2, fontWeight: ex.reintro ? 600 : 400 }}>{ex.note}</div>}
+            </div>
+            {isOpen && info && <div style={{ padding: "0 16px 14px" }}><InfoPanel info={info} color={color} /></div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Pill({ label, value, color }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <span style={{ fontSize: 13, color: "#BBB", fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 22, color, fontWeight: 800, lineHeight: 1 }}>{value}</span>
+    </div>
+  );
+}
+
+function Section({ label, sublabel, color, children }) {
+  return (
+    <div style={{ background: "#111", border: "2px solid #262626", borderRadius: 10, padding: "14px 16px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10, paddingBottom: 8, borderBottom: `2px solid ${color}55`, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 17, color, fontWeight: 800 }}>{label}</span>
+        {sublabel && <span style={{ fontSize: 14, color: "#BBB", fontWeight: 500 }}>{sublabel}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ExRow({ exercise, color, open, onToggle }) {
+  const info = EX[exercise.name];
+  const isOpen = open === exercise.name;
+  return (
+    <div style={{ borderBottom: "1px solid #1E1E1E" }}>
+      <div onClick={() => info && onToggle(exercise.name)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", cursor: info ? "pointer" : "default", gap: 12, minHeight: 44 }}>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 16, color: isOpen ? color : "#FFF", fontWeight: 600 }}>{exercise.name}</span>
+          {info && <span style={{ fontSize: 13, color: isOpen ? color : "#999", marginLeft: 4, fontWeight: 700 }}>{isOpen ? "▲" : "▼"}</span>}
+        </div>
+        <span style={{ fontSize: 15, color: "#E0E0E0", flexShrink: 0, fontWeight: 600 }}>{exercise.prescription}</span>
+      </div>
+      {isOpen && info && <div style={{ padding: "0 14px 12px" }}><InfoPanel info={info} color={color} /></div>}
+    </div>
+  );
+}
+
+function InfoPanel({ info, color }) {
+  return (
+    <div style={{ background: "#0A0A0A", borderLeft: `4px solid ${color}`, padding: "16px 18px", borderRadius: "0 8px 8px 0", marginTop: 6 }}>
+      <InfoSect label="How to do it" color={color}><p style={pStyle}>{info.howTo}</p></InfoSect>
+      <InfoSect label="What you should feel" color={color}><p style={pStyle}>{info.feel}</p></InfoSect>
+      <InfoSect label="What moves" color={color}><p style={pStyle}>{info.moves}</p></InfoSect>
+      {info.reintro && <InfoSect label="⚠️ Shoulder comeback rule" color="#E8A838"><p style={{ ...pStyle, color: "#FFD27A" }}>{info.reintro}</p></InfoSect>}
+      {info.progression && <InfoSect label="How to progress" color="#7DC272"><p style={{ ...pStyle, color: "#B8E5B0" }}>{info.progression}</p></InfoSect>}
+      {info.sub && <InfoSect label="If it hurts / no kit" color="#7AB8FF"><p style={{ ...pStyle, color: "#B5D5FF" }}>{info.sub}</p></InfoSect>}
+      {info.equipment && <InfoSect label="Equipment" color={color}><p style={pStyle}>{info.equipment}</p></InfoSect>}
+      <InfoSect label="Common mistakes" color={color} last>
+        {info.mistakes.map((m, i) => (
+          <div key={i} style={{ display: "flex", gap: 10, marginTop: i === 0 ? 0 : 10, alignItems: "flex-start" }}>
+            <span style={{ color: "#FF8866", fontSize: 16, marginTop: 1, flexShrink: 0, fontWeight: 800 }}>⚠</span>
+            <span style={{ fontSize: 16, color: "#DADADA", lineHeight: 1.55 }}>{m}</span>
+          </div>
+        ))}
+      </InfoSect>
+    </div>
+  );
+}
+
+const pStyle = { margin: 0, fontSize: 16, color: "#EAEAEA", lineHeight: 1.6 };
+
+function InfoSect({ label, color, children, last }) {
+  return (
+    <div style={{ marginBottom: last ? 0 : 18 }}>
+      <div style={{ fontSize: 14, color, fontWeight: 800, marginBottom: 8 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<ProgramViewer />);
+</script>
+</body>
+</html>
